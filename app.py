@@ -22,18 +22,25 @@ fastf1.Cache.enable_cache(cache_dir)
 
 app = Flask(__name__)
 
-# Configure CORS for production
-CORS(app, resources={
-    r"/api/*": {
-        "origins": ["*"],  # Allow all origins for now, restrict in production
-        "methods": ["GET", "POST", "OPTIONS"],
-        "allow_headers": ["Content-Type"]
-    }
-})
+# Configure CORS for production - Allow all origins with credentials
+CORS(app, 
+     resources={r"/api/*": {"origins": "*"}},
+     allow_headers=["Content-Type", "Authorization", "Access-Control-Allow-Credentials"],
+     methods=["GET", "POST", "OPTIONS"],
+     supports_credentials=False)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+# Add CORS headers to all responses
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
+    return response
 
 
 @app.route('/api/health', methods=['GET'])
