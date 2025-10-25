@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Calendar, MapPin, Clock, Trophy, Flag, ChevronRight, TrendingUp } from 'lucide-react';
 import { getCircuitImageByCountry } from '../utils/imageMapper';
+import API_BASE_URL from '../config/api';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -21,7 +22,7 @@ const Dashboard = () => {
     setError(null);
     try {
       const currentYear = new Date().getFullYear();
-      const response = await axios.get(`http://localhost:5000/api/schedule/${currentYear}`);
+      const response = await axios.get(`${API_BASE_URL}/api/schedule/${currentYear}`);
       const events = response.data.events;
       
       const now = new Date();
@@ -74,7 +75,7 @@ const Dashboard = () => {
       if (current && current.round_number > 1) {
         try {
           const resultsResponse = await axios.get(
-            `http://localhost:5000/api/session/${currentYear}/${current.round_number - 1}/R`
+            `${API_BASE_URL}/api/session/${currentYear}/${current.round_number - 1}/R`
           );
           setLastRaceResults(resultsResponse.data);
         } catch (err) {

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Clock } from 'lucide-react';
+import API_BASE_URL from '../config/api';
 
 const LapTiming = () => {
   const [year, setYear] = useState(new Date().getFullYear());
@@ -19,7 +20,7 @@ const LapTiming = () => {
 
   const fetchSchedule = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/schedule/${year}`);
+      const response = await axios.get(`${API_BASE_URL}/api/schedule/${year}`);
       setSchedule(response.data.events);
       if (response.data.events.length > 0) {
         setSelectedEvent(response.data.events[0].event_name);
@@ -43,8 +44,8 @@ const LapTiming = () => {
     setError(null);
     try {
       const url = driverNumber
-        ? `http://localhost:5000/api/laps/${year}/${round}/${sessionType}?driver=${driverNumber}`
-        : `http://localhost:5000/api/laps/${year}/${round}/${sessionType}`;
+        ? `${API_BASE_URL}/api/laps/${year}/${round}/${sessionType}?driver=${driverNumber}`
+        : `${API_BASE_URL}/api/laps/${year}/${round}/${sessionType}`;
       
       const response = await axios.get(url);
       setLaps(response.data);

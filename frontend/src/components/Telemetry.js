@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Activity } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import API_BASE_URL from '../config/api';
 
 const Telemetry = () => {
   const [year, setYear] = useState(new Date().getFullYear());
@@ -24,7 +25,7 @@ const Telemetry = () => {
 
   const fetchSchedule = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/schedule/${year}`);
+      const response = await axios.get(`${API_BASE_URL}/api/schedule/${year}`);
       setSchedule(response.data.events);
       if (response.data.events.length > 0) {
         setSelectedEvent(response.data.events[0].event_name);
@@ -37,7 +38,7 @@ const Telemetry = () => {
 
   const fetchDrivers = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/drivers/${year}`);
+      const response = await axios.get(`${API_BASE_URL}/api/drivers/${year}`);
       setDrivers(response.data.drivers);
       if (response.data.drivers.length > 0) {
         setSelectedDriver(response.data.drivers[0].number);
@@ -66,7 +67,7 @@ const Telemetry = () => {
     setError(null);
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/telemetry/${year}/${round}/${sessionType}/${driverNumber}/${lapNumber}`
+        `${API_BASE_URL}/api/telemetry/${year}/${round}/${sessionType}/${driverNumber}/${lapNumber}`
       );
       setTelemetry(response.data);
     } catch (err) {

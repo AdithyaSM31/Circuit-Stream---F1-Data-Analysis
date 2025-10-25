@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Trophy } from 'lucide-react';
 import { getDriverImage } from '../utils/imageMapper';
+import API_BASE_URL from '../config/api';
 
 const SessionResults = () => {
   const [year, setYear] = useState(new Date().getFullYear());
@@ -19,7 +20,7 @@ const SessionResults = () => {
 
   const fetchSchedule = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/schedule/${year}`);
+      const response = await axios.get(`${API_BASE_URL}/api/schedule/${year}`);
       setSchedule(response.data.events);
       if (response.data.events.length > 0) {
         setSelectedEvent(response.data.events[0].event_name);
@@ -43,7 +44,7 @@ const SessionResults = () => {
     setError(null);
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/session/${year}/${round}/${sessionType}`
+        `${API_BASE_URL}/api/session/${year}/${round}/${sessionType}`
       );
       setResults(response.data);
     } catch (err) {

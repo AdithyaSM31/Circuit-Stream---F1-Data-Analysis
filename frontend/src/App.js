@@ -10,13 +10,14 @@ import RaceControl from './components/RaceControl';
 import CircuitInfo from './components/CircuitInfo';
 import Teams from './components/Teams';
 import { Flag, Calendar, Trophy, Clock, Activity, MapPin, Home, Car } from 'lucide-react';
+import API_BASE_URL from './config/api';
 
 function App() {
   const [apiStatus, setApiStatus] = useState('checking');
 
   useEffect(() => {
     // Check API health
-    fetch('http://localhost:5000/api/health')
+    fetch(`${API_BASE_URL}/api/health`)
       .then(res => res.json())
       .then(data => setApiStatus('connected'))
       .catch(err => setApiStatus('disconnected'));

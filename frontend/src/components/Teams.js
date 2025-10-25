@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Car, Users } from 'lucide-react';
 import { getTeamCarImage, getDriverImage } from '../utils/imageMapper';
+import API_BASE_URL from '../config/api';
 import './Teams.css';
 
 const Teams = () => {
@@ -19,7 +20,7 @@ const Teams = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.get(`http://localhost:5000/api/drivers/${year}`);
+      const response = await axios.get(`${API_BASE_URL}/api/drivers/${year}`);
       
       // Group drivers by team
       const teamMap = {};

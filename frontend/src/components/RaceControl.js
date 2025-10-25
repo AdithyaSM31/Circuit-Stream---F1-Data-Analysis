@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Flag } from 'lucide-react';
+import API_BASE_URL from '../config/api';
 
 const RaceControl = () => {
   const [year, setYear] = useState(new Date().getFullYear());
@@ -18,7 +19,7 @@ const RaceControl = () => {
 
   const fetchSchedule = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/schedule/${year}`);
+      const response = await axios.get(`${API_BASE_URL}/api/schedule/${year}`);
       setSchedule(response.data.events);
       if (response.data.events.length > 0) {
         setSelectedEvent(response.data.events[0].event_name);
@@ -42,7 +43,7 @@ const RaceControl = () => {
     setError(null);
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/race-control/${year}/${round}/${sessionType}`
+        `${API_BASE_URL}/api/race-control/${year}/${round}/${sessionType}`
       );
       setMessages(response.data);
     } catch (err) {

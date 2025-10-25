@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Calendar } from 'lucide-react';
 import { getCircuitImageByCountry } from '../utils/imageMapper';
+import API_BASE_URL from '../config/api';
 
 const EventSchedule = () => {
   const [year, setYear] = useState(new Date().getFullYear());
@@ -13,7 +14,7 @@ const EventSchedule = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.get(`http://localhost:5000/api/schedule/${year}`);
+      const response = await axios.get(`${API_BASE_URL}/api/schedule/${year}`);
       setSchedule(response.data);
     } catch (err) {
       setError(err.message);

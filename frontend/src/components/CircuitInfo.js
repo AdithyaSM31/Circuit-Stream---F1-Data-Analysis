@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { MapPin } from 'lucide-react';
 import { getCircuitImageByCountry } from '../utils/imageMapper';
+import API_BASE_URL from '../config/api';
 
 const CircuitInfo = () => {
   const [year, setYear] = useState(new Date().getFullYear());
@@ -18,7 +19,7 @@ const CircuitInfo = () => {
 
   const fetchSchedule = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/schedule/${year}`);
+      const response = await axios.get(`${API_BASE_URL}/api/schedule/${year}`);
       setSchedule(response.data.events);
       if (response.data.events.length > 0) {
         setSelectedEvent(response.data.events[0].event_name);
@@ -42,7 +43,7 @@ const CircuitInfo = () => {
     setError(null);
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/circuit/${year}/${round}`
+        `${API_BASE_URL}/api/circuit/${year}/${round}`
       );
       setCircuitInfo(response.data);
     } catch (err) {
