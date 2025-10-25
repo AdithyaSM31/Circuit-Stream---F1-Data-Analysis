@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ['sqlite']
+nixPkgs = ['python311', 'sqlite']
 
 [phases.install]
 dependsOn = ['setup']
