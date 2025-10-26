@@ -166,6 +166,10 @@ h1, h2, h3, h4, h5, h6 {
   background: linear-gradient(180deg, #15151E 0%, transparent 100%);
 }
 
+.mobile-menu-close {
+  display: none;
+}
+
 .nav-link {
   display: flex;
   align-items: center;
@@ -518,6 +522,7 @@ tbody tr:hover {
   }
 
   .mobile-menu-close {
+    display: block;
     position: absolute;
     top: 1rem;
     right: 1rem;

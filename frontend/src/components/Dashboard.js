@@ -99,9 +99,16 @@ const Dashboard = () => {
   const formatSessionTime = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
-    const time = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    const timezone = date.toLocaleTimeString('en-US', { timeZoneName: 'short' }).split(' ').pop();
-    return `${time} ${timezone}`;
+    
+    // Convert to IST (Indian Standard Time)
+    const istTime = new Date(date.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+    const time = istTime.toLocaleTimeString('en-IN', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: true 
+    });
+    
+    return `${time} IST`;
   };
 
   const getCountdownText = (daysDiff) => {

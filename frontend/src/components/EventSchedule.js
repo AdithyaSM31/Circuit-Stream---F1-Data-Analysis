@@ -31,14 +31,20 @@ const EventSchedule = () => {
     if (!dateString) return '';
     try {
       const date = new Date(dateString);
+      
+      // Convert to IST (Indian Standard Time)
+      const istDate = new Date(date.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+      
       const options = { 
         month: 'short', 
         day: 'numeric', 
         hour: '2-digit', 
         minute: '2-digit',
-        timeZoneName: 'short'
+        hour12: true
       };
-      return date.toLocaleString('en-US', options);
+      
+      const formattedDate = istDate.toLocaleString('en-IN', options);
+      return `${formattedDate} IST`;
     } catch {
       return dateString;
     }
