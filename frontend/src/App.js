@@ -9,11 +9,12 @@ import Telemetry from './components/Telemetry';
 import RaceControl from './components/RaceControl';
 import CircuitInfo from './components/CircuitInfo';
 import Teams from './components/Teams';
-import { Flag, Calendar, Trophy, Clock, Activity, MapPin, Home, Car } from 'lucide-react';
+import { Flag, Calendar, Trophy, Clock, Activity, MapPin, Home, Car, Menu, X } from 'lucide-react';
 import API_BASE_URL from './config/api';
 
 function App() {
   const [apiStatus, setApiStatus] = useState('checking');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     // Check API health
@@ -23,51 +24,65 @@ function App() {
       .catch(err => setApiStatus('disconnected'));
   }, []);
 
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
+  };
+
   return (
     <Router>
       <div className="App">
+        {/* Mobile Menu Overlay */}
+        {mobileMenuOpen && (
+          <div className="mobile-overlay" onClick={closeMobileMenu}></div>
+        )}
+        
         <header className="app-header">
           <div className="header-content">
             <div className="logo">
               <img src="/logo.png" alt="Circuit Stream Logo" />
               <h1>Circuit Stream</h1>
             </div>
-            <div className={`api-status ${apiStatus}`}>
-              <span className="status-dot"></span>
-              {apiStatus === 'connected' ? 'API Connected' : 'API Disconnected'}
+            <div className="header-right">
+              <div className={`api-status ${apiStatus}`}>
+                <span className="status-dot"></span>
+                {apiStatus === 'connected' ? 'API Connected' : 'API Disconnected'}
+              </div>
+              <button className="mobile-menu-toggle" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+                {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
             </div>
           </div>
           
-          <nav className="main-nav">
-            <NavLink to="/" className="nav-link" end>
+          <nav className={`main-nav ${mobileMenuOpen ? 'mobile-open' : ''}`}>
+            <NavLink to="/" className="nav-link" end onClick={closeMobileMenu}>
               <Home size={20} />
               <span>Dashboard</span>
             </NavLink>
-            <NavLink to="/schedule" className="nav-link">
+            <NavLink to="/schedule" className="nav-link" onClick={closeMobileMenu}>
               <Calendar size={20} />
               <span>Schedule</span>
             </NavLink>
-            <NavLink to="/teams" className="nav-link">
+            <NavLink to="/teams" className="nav-link" onClick={closeMobileMenu}>
               <Car size={20} />
               <span>Teams</span>
             </NavLink>
-            <NavLink to="/results" className="nav-link">
+            <NavLink to="/results" className="nav-link" onClick={closeMobileMenu}>
               <Trophy size={20} />
               <span>Results</span>
             </NavLink>
-            <NavLink to="/laps" className="nav-link">
+            <NavLink to="/laps" className="nav-link" onClick={closeMobileMenu}>
               <Clock size={20} />
               <span>Lap Times</span>
             </NavLink>
-            <NavLink to="/telemetry" className="nav-link">
+            <NavLink to="/telemetry" className="nav-link" onClick={closeMobileMenu}>
               <Activity size={20} />
               <span>Telemetry</span>
             </NavLink>
-            <NavLink to="/race-control" className="nav-link">
+            <NavLink to="/race-control" className="nav-link" onClick={closeMobileMenu}>
               <Flag size={20} />
               <span>Race Control</span>
             </NavLink>
-            <NavLink to="/circuit" className="nav-link">
+            <NavLink to="/circuit" className="nav-link" onClick={closeMobileMenu}>
               <MapPin size={20} />
               <span>Circuit Info</span>
             </NavLink>
