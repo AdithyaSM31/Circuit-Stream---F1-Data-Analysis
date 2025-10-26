@@ -69,15 +69,15 @@ def get_schedule(year):
                 'event_date': event['EventDate'].strftime('%Y-%m-%d') if pd.notna(event['EventDate']) else None,
                 'event_format': event['EventFormat'],
                 'session1': event['Session1'] if pd.notna(event['Session1']) else None,
-                'session1_date': event['Session1Date'].strftime('%Y-%m-%d %H:%M:%S') if pd.notna(event['Session1Date']) else None,
+                'session1_date': event['Session1Date'].strftime('%Y-%m-%dT%H:%M:%SZ') if pd.notna(event['Session1Date']) else None,
                 'session2': event['Session2'] if pd.notna(event['Session2']) else None,
-                'session2_date': event['Session2Date'].strftime('%Y-%m-%d %H:%M:%S') if pd.notna(event['Session2Date']) else None,
+                'session2_date': event['Session2Date'].strftime('%Y-%m-%dT%H:%M:%SZ') if pd.notna(event['Session2Date']) else None,
                 'session3': event['Session3'] if pd.notna(event['Session3']) else None,
-                'session3_date': event['Session3Date'].strftime('%Y-%m-%d %H:%M:%S') if pd.notna(event['Session3Date']) else None,
+                'session3_date': event['Session3Date'].strftime('%Y-%m-%dT%H:%M:%SZ') if pd.notna(event['Session3Date']) else None,
                 'session4': event['Session4'] if pd.notna(event['Session4']) else None,
-                'session4_date': event['Session4Date'].strftime('%Y-%m-%d %H:%M:%S') if pd.notna(event['Session4Date']) else None,
+                'session4_date': event['Session4Date'].strftime('%Y-%m-%dT%H:%M:%SZ') if pd.notna(event['Session4Date']) else None,
                 'session5': event['Session5'] if pd.notna(event['Session5']) else None,
-                'session5_date': event['Session5Date'].strftime('%Y-%m-%d %H:%M:%S') if pd.notna(event['Session5Date']) else None,
+                'session5_date': event['Session5Date'].strftime('%Y-%m-%dT%H:%M:%SZ') if pd.notna(event['Session5Date']) else None,
             }
             events.append(event_data)
         
