@@ -32,18 +32,16 @@ const EventSchedule = () => {
     try {
       const date = new Date(dateString);
       
-      // Convert to IST (Indian Standard Time)
-      const istDate = new Date(date.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
-      
-      const options = { 
+      // Format directly in IST timezone (this handles date changes automatically)
+      const formattedDate = date.toLocaleString('en-IN', {
+        timeZone: 'Asia/Kolkata',
         month: 'short', 
         day: 'numeric', 
         hour: '2-digit', 
         minute: '2-digit',
         hour12: true
-      };
+      });
       
-      const formattedDate = istDate.toLocaleString('en-IN', options);
       return `${formattedDate} IST`;
     } catch {
       return dateString;

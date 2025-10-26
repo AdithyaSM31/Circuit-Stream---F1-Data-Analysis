@@ -93,16 +93,22 @@ const Dashboard = () => {
   const formatDate = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    // Format date in IST timezone to ensure correct date
+    return date.toLocaleDateString('en-IN', { 
+      timeZone: 'Asia/Kolkata',
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric' 
+    });
   };
 
   const formatSessionTime = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
     
-    // Convert to IST (Indian Standard Time)
-    const istTime = new Date(date.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
-    const time = istTime.toLocaleTimeString('en-IN', { 
+    // Format directly in IST timezone
+    const time = date.toLocaleString('en-IN', { 
+      timeZone: 'Asia/Kolkata',
       hour: '2-digit', 
       minute: '2-digit',
       hour12: true 
