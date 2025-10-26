@@ -99,7 +99,9 @@ const Dashboard = () => {
   const formatSessionTime = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
-    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    const time = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    const timezone = date.toLocaleTimeString('en-US', { timeZoneName: 'short' }).split(' ').pop();
+    return `${time} ${timezone}`;
   };
 
   const getCountdownText = (daysDiff) => {

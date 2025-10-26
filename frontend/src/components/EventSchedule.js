@@ -27,6 +27,23 @@ const EventSchedule = () => {
     fetchSchedule();
   }, []);
 
+  const formatDateWithTimezone = (dateString) => {
+    if (!dateString) return '';
+    try {
+      const date = new Date(dateString);
+      const options = { 
+        month: 'short', 
+        day: 'numeric', 
+        hour: '2-digit', 
+        minute: '2-digit',
+        timeZoneName: 'short'
+      };
+      return date.toLocaleString('en-US', options);
+    } catch {
+      return dateString;
+    }
+  };
+
   return (
     <div className="page-container">
       <h2 className="page-title">
@@ -108,19 +125,19 @@ const EventSchedule = () => {
                   <h4 style={{ fontSize: '0.9rem', marginBottom: '0.5rem', color: '#333' }}>Sessions:</h4>
                   <div style={{ display: 'grid', gap: '0.3rem', fontSize: '0.85rem' }}>
                     {event.session1 && (
-                      <div>🏁 {event.session1} - {event.session1_date}</div>
+                      <div>🏁 {event.session1} - {formatDateWithTimezone(event.session1_date)}</div>
                     )}
                     {event.session2 && (
-                      <div>🏁 {event.session2} - {event.session2_date}</div>
+                      <div>🏁 {event.session2} - {formatDateWithTimezone(event.session2_date)}</div>
                     )}
                     {event.session3 && (
-                      <div>🏁 {event.session3} - {event.session3_date}</div>
+                      <div>🏁 {event.session3} - {formatDateWithTimezone(event.session3_date)}</div>
                     )}
                     {event.session4 && (
-                      <div>🏁 {event.session4} - {event.session4_date}</div>
+                      <div>🏁 {event.session4} - {formatDateWithTimezone(event.session4_date)}</div>
                     )}
                     {event.session5 && (
-                      <div>🏁 {event.session5} - {event.session5_date}</div>
+                      <div>🏁 {event.session5} - {formatDateWithTimezone(event.session5_date)}</div>
                     )}
                   </div>
                 </div>
