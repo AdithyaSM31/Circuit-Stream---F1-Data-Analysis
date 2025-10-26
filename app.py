@@ -7,7 +7,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 import fastf1
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timezone
 import logging
 import os
 
@@ -61,6 +61,18 @@ def get_schedule(year):
         # Convert to dictionary format
         events = []
         for idx, event in schedule.iterrows():
+            # Helper function to convert datetime to UTC ISO format
+            def format_utc_datetime(dt):
+                if pd.notna(dt):
+                    # If datetime is timezone-aware, convert to UTC
+                    if hasattr(dt, 'tzinfo') and dt.tzinfo is not None:
+                        dt_utc = dt.astimezone(timezone.utc)
+                    else:
+                        # Assume it's already UTC if no timezone info
+                        dt_utc = dt.replace(tzinfo=timezone.utc)
+                    return dt_utc.strftime('%Y-%m-%dT%H:%M:%SZ')
+                return None
+            
             event_data = {
                 'round_number': int(event['RoundNumber']) if pd.notna(event['RoundNumber']) else None,
                 'country': event['Country'],
@@ -69,15 +81,15 @@ def get_schedule(year):
                 'event_date': event['EventDate'].strftime('%Y-%m-%d') if pd.notna(event['EventDate']) else None,
                 'event_format': event['EventFormat'],
                 'session1': event['Session1'] if pd.notna(event['Session1']) else None,
-                'session1_date': event['Session1Date'].strftime('%Y-%m-%dT%H:%M:%SZ') if pd.notna(event['Session1Date']) else None,
+                'session1_date': format_utc_datetime(event['Session1Date']),
                 'session2': event['Session2'] if pd.notna(event['Session2']) else None,
-                'session2_date': event['Session2Date'].strftime('%Y-%m-%dT%H:%M:%SZ') if pd.notna(event['Session2Date']) else None,
+                'session2_date': format_utc_datetime(event['Session2Date']),
                 'session3': event['Session3'] if pd.notna(event['Session3']) else None,
-                'session3_date': event['Session3Date'].strftime('%Y-%m-%dT%H:%M:%SZ') if pd.notna(event['Session3Date']) else None,
+                'session3_date': format_utc_datetime(event['Session3Date']),
                 'session4': event['Session4'] if pd.notna(event['Session4']) else None,
-                'session4_date': event['Session4Date'].strftime('%Y-%m-%dT%H:%M:%SZ') if pd.notna(event['Session4Date']) else None,
+                'session4_date': format_utc_datetime(event['Session4Date']),
                 'session5': event['Session5'] if pd.notna(event['Session5']) else None,
-                'session5_date': event['Session5Date'].strftime('%Y-%m-%dT%H:%M:%SZ') if pd.notna(event['Session5Date']) else None,
+                'session5_date': format_utc_datetime(event['Session5Date']),
             }
             events.append(event_data)
         
