@@ -32,8 +32,10 @@ const Dashboard = () => {
       let upcoming = [];
       
       for (let event of events) {
-        if (event.event_date) {
-          const eventDate = new Date(event.event_date);
+        // Use the race date (session5 is usually the race) for more accurate countdown
+        const raceDate = event.session5_date || event.session4_date || event.event_date;
+        if (raceDate) {
+          const eventDate = new Date(raceDate);
           const daysDiff = Math.ceil((eventDate - now) / (1000 * 60 * 60 * 24));
           
           if (daysDiff >= -3 && daysDiff <= 3) {
@@ -49,18 +51,21 @@ const Dashboard = () => {
       // If no current event, get the next one
       if (!current && events.length > 0) {
         const futureEvents = events.filter(e => {
-          if (!e.event_date) return false;
-          const eventDate = new Date(e.event_date);
+          const raceDate = e.session5_date || e.session4_date || e.event_date;
+          if (!raceDate) return false;
+          const eventDate = new Date(raceDate);
           return eventDate > now;
         });
         
         if (futureEvents.length > 0) {
           const nextEvent = futureEvents[0];
-          const eventDate = new Date(nextEvent.event_date);
+          const raceDate = nextEvent.session5_date || nextEvent.session4_date || nextEvent.event_date;
+          const eventDate = new Date(raceDate);
           const daysDiff = Math.ceil((eventDate - now) / (1000 * 60 * 60 * 24));
           current = { ...nextEvent, daysDiff };
           upcoming = futureEvents.slice(1, 4).map(e => {
-            const eventDate = new Date(e.event_date);
+            const raceDate = e.session5_date || e.session4_date || e.event_date;
+            const eventDate = new Date(raceDate);
             const daysDiff = Math.ceil((eventDate - now) / (1000 * 60 * 60 * 24));
             return { ...e, daysDiff };
           });
