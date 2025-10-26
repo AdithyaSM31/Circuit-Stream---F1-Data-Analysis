@@ -54,6 +54,9 @@ function App() {
           </div>
           
           <nav className={`main-nav ${mobileMenuOpen ? 'mobile-open' : ''}`}>
+            <button className="mobile-menu-close" onClick={closeMobileMenu}>
+              <X size={24} />
+            </button>
             <NavLink to="/" className="nav-link" end onClick={closeMobileMenu}>
               <Home size={20} />
               <span>Dashboard</span>
