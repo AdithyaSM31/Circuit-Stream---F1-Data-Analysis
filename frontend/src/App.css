@@ -32,7 +32,7 @@
   box-shadow: 0 4px 20px rgba(225, 6, 0, 0.3);
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 1000;
 }
 
 .header-content {
@@ -59,6 +59,8 @@
   padding: 0.5rem;
   border-radius: 8px;
   transition: all 0.3s ease;
+  z-index: 1003;
+  position: relative;
 }
 
 .mobile-menu-toggle:hover {
@@ -488,6 +490,7 @@ tbody tr:hover {
     background: rgba(0, 0, 0, 0.85);
     z-index: 998;
     animation: fadeIn 0.3s ease;
+    pointer-events: auto;
   }
 
   @keyframes fadeIn {
@@ -501,16 +504,17 @@ tbody tr:hover {
     right: -100%;
     width: 280px;
     height: 100vh;
-    background: #1A1A24;
+    background: #252530;
     display: flex;
     flex-direction: column;
     padding: 1rem;
     gap: 0.5rem;
     transition: right 0.3s ease;
-    z-index: 999;
+    z-index: 1001;
     box-shadow: -4px 0 20px rgba(0, 0, 0, 0.8);
     border-left: 3px solid #E10600;
     overflow-y: auto;
+    pointer-events: auto;
   }
 
   .mobile-menu-close {
@@ -524,7 +528,7 @@ tbody tr:hover {
     padding: 0.5rem;
     border-radius: 8px;
     transition: all 0.3s ease;
-    z-index: 1001;
+    z-index: 1002;
   }
 
   .mobile-menu-close:hover {
@@ -550,6 +554,8 @@ tbody tr:hover {
     pointer-events: auto;
     cursor: pointer;
     margin-top: 0;
+    position: relative;
+    z-index: 1002;
   }
 
   .nav-link:first-of-type {
