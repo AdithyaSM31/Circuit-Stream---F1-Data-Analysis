@@ -38,10 +38,11 @@ const Dashboard = () => {
           const eventDate = new Date(raceDate);
           const daysDiff = Math.ceil((eventDate - now) / (1000 * 60 * 60 * 24));
           
-          if (daysDiff >= -3 && daysDiff <= 3) {
-            // Event is happening now or very soon
+          // Only show event as current if it's today or in the future (not past races)
+          if (daysDiff >= 0 && daysDiff <= 7) {
+            // Event is happening now or within the next week
             current = { ...event, daysDiff };
-          } else if (daysDiff > 3 && upcoming.length < 3) {
+          } else if (daysDiff > 7 && upcoming.length < 3) {
             // Future events
             upcoming.push({ ...event, daysDiff });
           }
@@ -82,7 +83,15 @@ const Dashboard = () => {
           const resultsResponse = await axios.get(
             `${API_BASE_URL}/api/session/${currentYear}/${current.round_number - 1}/R`
           );
-          setLastRaceResults(resultsResponse.data);
+          // Filter and sort results by position to ensure correct order (1st, 2nd, 3rd)
+          const sortedResults = {
+            ...resultsResponse.data,
+            results: resultsResponse.data.results
+              .filter(driver => driver.position != null && driver.position > 0)
+              .sort((a, b) => a.position - b.position)
+          };
+          console.log('Race results after sorting:', sortedResults.results.slice(0, 3));
+          setLastRaceResults(sortedResults);
         } catch (err) {
           console.log('Could not load last race results');
         }
@@ -259,8 +268,8 @@ const Dashboard = () => {
             </div>
             <div className="podium-container">
               {lastRaceResults.results.slice(0, 3).map((driver, index) => (
-                <div key={index} className={`podium-item position-${index + 1}`}>
-                  <div className="podium-position">{index + 1}</div>
+                <div key={index} className={`podium-item position-${driver.position}`}>
+                  <div className="podium-position">{driver.position}</div>
                   <div className="podium-driver">{driver.full_name}</div>
                   <div className="podium-team">{driver.team_name}</div>
                   <div className="podium-points">{driver.points} pts</div>

@@ -11,12 +11,21 @@ import CircuitInfo from './components/CircuitInfo';
 import Teams from './components/Teams';
 import { Flag, Calendar, Trophy, Clock, Activity, MapPin, Home, Car, Menu, X } from 'lucide-react';
 import API_BASE_URL from './config/api';
+import { StatusBar, Style } from '@capacitor/status-bar';
+import { Capacitor } from '@capacitor/core';
 
 function App() {
   const [apiStatus, setApiStatus] = useState('checking');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
+    // Configure status bar for native apps
+    if (Capacitor.isNativePlatform()) {
+      StatusBar.setStyle({ style: Style.Dark });
+      StatusBar.setBackgroundColor({ color: '#15151E' });
+      StatusBar.setOverlaysWebView({ overlay: false });
+    }
+
     // Check API health
     fetch(`${API_BASE_URL}/api/health`)
       .then(res => res.json())
@@ -36,7 +45,7 @@ function App() {
           <div className="mobile-overlay" onClick={closeMobileMenu}></div>
         )}
         
-        <header className="app-header">
+        <header className={`app-header ${mobileMenuOpen ? 'menu-open' : ''}`}>
           <div className="header-content">
             <div className="logo">
               <img src="/logo.png" alt="Circuit Stream Logo" />

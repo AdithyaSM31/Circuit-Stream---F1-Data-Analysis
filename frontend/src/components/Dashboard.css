@@ -503,9 +503,10 @@
     align-items: stretch;
   }
   
-  .position-1 {
+  .position-1,
+  .position-2,
+  .position-3 {
     transform: none;
-    order: 1;
   }
   
   .stats-grid {

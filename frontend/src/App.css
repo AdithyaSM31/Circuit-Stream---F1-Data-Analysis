@@ -33,6 +33,7 @@
   position: sticky;
   top: 0;
   z-index: 1000;
+  padding-top: env(safe-area-inset-top);
 }
 
 .header-content {
@@ -484,6 +485,12 @@ tbody tr:hover {
     display: block;
   }
 
+  /* Hide toggle button when menu is open (close button is inside menu) */
+  .app-header.menu-open .mobile-menu-toggle {
+    opacity: 0;
+    pointer-events: none;
+  }
+
   .mobile-overlay {
     display: block;
     position: fixed;
@@ -512,6 +519,7 @@ tbody tr:hover {
     display: flex;
     flex-direction: column;
     padding: 1rem;
+    padding-top: calc(env(safe-area-inset-top) + 1rem);
     gap: 0.5rem;
     transition: right 0.3s ease;
     z-index: 1001;
@@ -524,7 +532,7 @@ tbody tr:hover {
   .mobile-menu-close {
     display: block;
     position: absolute;
-    top: 1rem;
+    top: calc(env(safe-area-inset-top) + 1rem);
     right: 1rem;
     background: transparent;
     border: none;
@@ -564,7 +572,7 @@ tbody tr:hover {
   }
 
   .nav-link:first-of-type {
-    margin-top: 3rem;
+    margin-top: 4rem;
   }
 
   .nav-link svg {
