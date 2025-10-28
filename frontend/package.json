@@ -4,13 +4,17 @@
   "description": "Real-time F1 Data Analysis Frontend",
   "private": true,
   "dependencies": {
+    "@capacitor/android": "^7.4.4",
+    "@capacitor/cli": "^7.4.4",
+    "@capacitor/core": "^7.4.4",
+    "@capacitor/status-bar": "^7.0.3",
+    "axios": "^1.6.0",
+    "lucide-react": "^0.294.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-scripts": "5.0.1",
-    "axios": "^1.6.0",
-    "recharts": "^2.10.0",
     "react-router-dom": "^6.20.0",
-    "lucide-react": "^0.294.0"
+    "react-scripts": "5.0.1",
+    "recharts": "^2.10.0"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -34,5 +38,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5"
   }
 }
