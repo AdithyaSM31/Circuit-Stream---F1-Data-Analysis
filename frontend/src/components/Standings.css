@@ -1,0 +1,249 @@
+/* Standings Tabs */
+.standings-tabs {
+  display: flex;
+  gap: 1rem;
+  margin: 2rem 0;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.tab-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.tab-button:hover {
+  color: #E10600;
+  background: rgba(225, 6, 0, 0.05);
+}
+
+.tab-button.active {
+  color: #E10600;
+  border-bottom-color: #E10600;
+  background: rgba(225, 6, 0, 0.1);
+}
+
+/* Standings Container */
+.standings-container {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 15px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.standings-header {
+  display: grid;
+  grid-template-columns: 80px 1fr 200px 100px;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: rgba(225, 6, 0, 0.1);
+  border-bottom: 2px solid #E10600;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.9rem;
+  color: #E10600;
+}
+
+.standings-row {
+  display: grid;
+  grid-template-columns: 80px 1fr 200px 100px;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+  align-items: center;
+}
+
+.standings-row:hover {
+  background: rgba(225, 6, 0, 0.05);
+  transform: translateX(5px);
+}
+
+.standings-row.podium-position {
+  background: rgba(255, 215, 0, 0.03);
+}
+
+.standings-row:last-child {
+  border-bottom: none;
+}
+
+/* Constructor-specific grid */
+.standings-header:has(.constructor-col) {
+  grid-template-columns: 80px 1fr 100px;
+}
+
+.standings-row:has(.constructor-col) {
+  grid-template-columns: 80px 1fr 100px;
+}
+
+/* Column Styles */
+.pos-col {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.position-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 50px;
+  padding: 0.5rem 0.75rem;
+  border-radius: 25px;
+  font-weight: 900;
+  font-size: 1rem;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.driver-col,
+.constructor-col {
+  display: flex;
+  align-items: center;
+}
+
+.driver-info,
+.constructor-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.driver-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  background: rgba(225, 6, 0, 0.2);
+  border: 2px solid #E10600;
+  border-radius: 50%;
+  font-weight: 900;
+  font-size: 0.9rem;
+  color: #E10600;
+}
+
+.driver-name,
+.constructor-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: white;
+}
+
+.team-col {
+  display: flex;
+  align-items: center;
+}
+
+.team-name {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.95rem;
+}
+
+.team-color-indicator {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  flex-shrink: 0;
+}
+
+.points-col {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.points-value {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #E10600;
+  text-shadow: 0 2px 4px rgba(225, 6, 0, 0.3);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .standings-tabs {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .tab-button {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .tab-button.active {
+    border-left: 4px solid #E10600;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .standings-header {
+    grid-template-columns: 60px 1fr 80px;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.75rem;
+  }
+
+  .standings-row {
+    grid-template-columns: 60px 1fr 80px;
+    gap: 0.5rem;
+    padding: 1rem;
+  }
+
+  .standings-header:has(.constructor-col),
+  .standings-row:has(.constructor-col) {
+    grid-template-columns: 60px 1fr 80px;
+  }
+
+  .team-col {
+    display: none;
+  }
+
+  .position-badge {
+    min-width: 40px;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.85rem;
+  }
+
+  .driver-number {
+    min-width: 35px;
+    height: 35px;
+    font-size: 0.8rem;
+  }
+
+  .driver-name,
+  .constructor-name {
+    font-size: 0.95rem;
+  }
+
+  .points-value {
+    font-size: 1.2rem;
+  }
+
+  .team-color-indicator {
+    width: 25px;
+    height: 25px;
+  }
+}
+
+/* No Data Message */
+.no-data {
+  text-align: center;
+  padding: 3rem;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 1.1rem;
+}

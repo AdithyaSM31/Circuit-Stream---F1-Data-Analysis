@@ -3,13 +3,14 @@ import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-do
 import './App.css';
 import Dashboard from './components/Dashboard';
 import EventSchedule from './components/EventSchedule';
+import Standings from './components/Standings';
 import SessionResults from './components/SessionResults';
 import LapTiming from './components/LapTiming';
 import Telemetry from './components/Telemetry';
 import RaceControl from './components/RaceControl';
 import CircuitInfo from './components/CircuitInfo';
 import Teams from './components/Teams';
-import { Flag, Calendar, Trophy, Clock, Activity, MapPin, Home, Car, Menu, X } from 'lucide-react';
+import { Flag, Calendar, Trophy, Clock, Activity, MapPin, Home, Car, Menu, X, Award } from 'lucide-react';
 import API_BASE_URL from './config/api';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { Capacitor } from '@capacitor/core';
@@ -70,6 +71,10 @@ function App() {
               <Home size={20} />
               <span>Dashboard</span>
             </NavLink>
+            <NavLink to="/standings" className="nav-link" onClick={closeMobileMenu}>
+              <Award size={20} />
+              <span>Standings</span>
+            </NavLink>
             <NavLink to="/schedule" className="nav-link" onClick={closeMobileMenu}>
               <Calendar size={20} />
               <span>Schedule</span>
@@ -104,6 +109,7 @@ function App() {
         <main className="main-content">
           <Routes>
             <Route path="/" element={<Dashboard />} />
+            <Route path="/standings" element={<Standings />} />
             <Route path="/schedule" element={<EventSchedule />} />
             <Route path="/teams" element={<Teams />} />
             <Route path="/results" element={<SessionResults />} />
