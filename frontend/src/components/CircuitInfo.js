@@ -207,7 +207,41 @@ const CircuitInfo = () => {
               </div>
             )}
 
+            {circuitInfo.circuit_info.corners && circuitInfo.circuit_info.corners.length > 0 && (
+              <div>
+                <h4 style={{ marginTop: '1.5rem', marginBottom: '1rem', color: '#333' }}>
+                  Corner Breakdown ({circuitInfo.circuit_info.corners.length} Corners)
+                </h4>
+                <div style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
+                  gap: '1rem'
+                }}>
+                  {circuitInfo.circuit_info.corners.map((corner, index) => (
+                    <div 
+                      key={index}
+                      style={{
+                        padding: '1rem',
+                        background: 'linear-gradient(135deg, #E10600 0%, #8B0000 100%)',
+                        color: 'white',
+                        borderRadius: '10px',
+                        textAlign: 'center',
+                        fontWeight: 'bold',
+                        fontSize: '1.1rem'
+                      }}
+                    >
+                      Turn {corner.number || index + 1}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
+            {(!circuitInfo.circuit_info.corners || circuitInfo.circuit_info.corners.length === 0) && (
+              <p style={{ color: '#666', fontStyle: 'italic', marginTop: '1rem' }}>
+                Detailed corner information not available for this circuit.
+              </p>
+            )}
           </div>
         </div>
       )}
