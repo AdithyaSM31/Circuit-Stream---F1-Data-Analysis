@@ -23,8 +23,18 @@ const Standings = () => {
       const driverPoints = {};
       const constructorPoints = {};
       
+      // Filter only past races (races that have already happened)
+      const today = new Date();
+      const completedEvents = events.filter(event => {
+        if (!event.event_date) return false;
+        const eventDate = new Date(event.event_date);
+        return eventDate < today;
+      });
+      
+      console.log(`Found ${completedEvents.length} completed races out of ${events.length} total events`);
+      
       // Process each completed race
-      for (const event of events) {
+      for (const event of completedEvents) {
         try {
           // Try to get race results (session5 is usually the race)
           const raceResponse = await axios.get(
@@ -32,6 +42,7 @@ const Standings = () => {
           );
           
           if (raceResponse.data && raceResponse.data.results) {
+            console.log(`Processing ${event.event_name} - Round ${event.round_number}`);
             raceResponse.data.results.forEach(driver => {
               // Add driver points
               const driverName = driver.full_name;
@@ -62,7 +73,7 @@ const Standings = () => {
           }
         } catch (err) {
           // Race not completed yet or data not available
-          console.log(`No results for round ${event.round_number}`);
+          console.log(`No results available for round ${event.round_number} (${event.event_name})`);
         }
       }
       
