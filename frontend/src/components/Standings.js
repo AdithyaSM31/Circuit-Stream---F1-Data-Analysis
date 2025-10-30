@@ -33,49 +33,51 @@ const Standings = () => {
       
       console.log(`Found ${completedEvents.length} completed races out of ${events.length} total events`);
       
-      // Process each completed race
-      for (const event of completedEvents) {
-        try {
-          // Try to get race results (session5 is usually the race)
-          const raceResponse = await axios.get(
-            `${API_BASE_URL}/api/session/${year}/${event.round_number}/R`
-          );
-          
-          if (raceResponse.data && raceResponse.data.results) {
-            console.log(`Processing ${event.event_name} - Round ${event.round_number}`);
-            raceResponse.data.results.forEach(driver => {
-              // Add driver points
-              const driverName = driver.full_name;
-              const teamName = driver.team_name;
-              const points = parseFloat(driver.points) || 0;
-              
-              if (!driverPoints[driverName]) {
-                driverPoints[driverName] = {
-                  name: driverName,
-                  team: teamName,
-                  points: 0,
-                  abbreviation: driver.abbreviation,
-                  number: driver.driver_number
-                };
-              }
-              driverPoints[driverName].points += points;
-              
-              // Add constructor points
-              if (!constructorPoints[teamName]) {
-                constructorPoints[teamName] = {
-                  name: teamName,
-                  points: 0,
-                  color: driver.team_color
-                };
-              }
-              constructorPoints[teamName].points += points;
-            });
-          }
-        } catch (err) {
-          // Race not completed yet or data not available
-          console.log(`No results available for round ${event.round_number} (${event.event_name})`);
+      // Fetch all race results in parallel for faster loading
+      const racePromises = completedEvents.map(event =>
+        axios.get(`${API_BASE_URL}/api/session/${year}/${event.round_number}/R`)
+          .then(response => ({ event, data: response.data }))
+          .catch(err => {
+            console.log(`No results available for round ${event.round_number} (${event.event_name})`);
+            return null;
+          })
+      );
+      
+      const raceResults = await Promise.all(racePromises);
+      
+      // Process each completed race result
+      raceResults.forEach(result => {
+        if (result && result.data && result.data.results) {
+          console.log(`Processing ${result.event.event_name} - Round ${result.event.round_number}`);
+          result.data.results.forEach(driver => {
+            // Add driver points
+            const driverName = driver.full_name;
+            const teamName = driver.team_name;
+            const points = parseFloat(driver.points) || 0;
+            
+            if (!driverPoints[driverName]) {
+              driverPoints[driverName] = {
+                name: driverName,
+                team: teamName,
+                points: 0,
+                abbreviation: driver.abbreviation,
+                number: driver.driver_number
+              };
+            }
+            driverPoints[driverName].points += points;
+            
+            // Add constructor points
+            if (!constructorPoints[teamName]) {
+              constructorPoints[teamName] = {
+                name: teamName,
+                points: 0,
+                color: driver.team_color
+              };
+            }
+            constructorPoints[teamName].points += points;
+          });
         }
-      }
+      });
       
       // Convert to arrays and sort by points
       const driversArray = Object.values(driverPoints).sort((a, b) => b.points - a.points);

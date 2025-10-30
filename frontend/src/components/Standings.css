@@ -99,14 +99,16 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 0.3rem;
   min-width: 50px;
   padding: 0.5rem 0.75rem;
   border-radius: 25px;
   font-weight: 900;
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: white;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  line-height: 1;
 }
 
 .driver-col,

@@ -120,7 +120,6 @@ const Teams = () => {
                     <div className="driver-info">
                       <div className="driver-name">{driver.full_name}</div>
                       <div className="driver-details">
-                        <span className="driver-code">{driver.abbreviation}</span>
                         <span className="driver-number">#{driver.number}</span>
                       </div>
                     </div>
