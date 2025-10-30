@@ -92,8 +92,8 @@ const Standings = () => {
             setConstructorStandings(constructorsArray);
           }
         } catch (err) {
-          console.log(`✗ No results for round ${event.round_number} (${event.event_name})`);
-          // Continue to next race
+          console.log(`✗ No results for round ${event.round_number} (${event.event_name})`, err.response?.status || err.message);
+          // Continue to next race even if this one fails
         }
       }
       
@@ -202,7 +202,7 @@ const Standings = () => {
                     className="position-badge"
                     style={{ backgroundColor: getPositionColor(position) }}
                   >
-                    {getPositionIcon(position)} {position}
+                    {position <= 3 ? getPositionIcon(position) : position}
                   </span>
                 </div>
                 <div className="driver-col">
@@ -244,7 +244,7 @@ const Standings = () => {
                     className="position-badge"
                     style={{ backgroundColor: getPositionColor(position) }}
                   >
-                    {getPositionIcon(position)} {position}
+                    {position <= 3 ? getPositionIcon(position) : position}
                   </span>
                 </div>
                 <div className="constructor-col">
