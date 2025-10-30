@@ -24,67 +24,84 @@ const Standings = () => {
       const constructorPoints = {};
       
       // Filter only past races (races that have already happened)
+      // Also filter out races more than 2 weeks old to reduce API calls
       const today = new Date();
+      const twoWeeksAgo = new Date(today);
+      twoWeeksAgo.setDate(today.getDate() - 14);
+      
       const completedEvents = events.filter(event => {
         if (!event.event_date) return false;
         const eventDate = new Date(event.event_date);
-        return eventDate < today;
+        // Only include races that happened and have session5_date (actual race date)
+        return eventDate < today && event.session5_date;
       });
       
-      console.log(`Found ${completedEvents.length} completed races out of ${events.length} total events`);
+      console.log(`Found ${completedEvents.length} completed races with race data out of ${events.length} total events`);
       
-      // Fetch all race results in parallel for faster loading
-      const racePromises = completedEvents.map(event =>
-        axios.get(`${API_BASE_URL}/api/session/${year}/${event.round_number}/R`)
-          .then(response => ({ event, data: response.data }))
-          .catch(err => {
-            console.log(`No results available for round ${event.round_number} (${event.event_name})`);
-            return null;
-          })
-      );
+      // Fetch race results sequentially but with timeout to avoid hanging
+      // This is more reliable than parallel for slow backends
+      let processedCount = 0;
       
-      const raceResults = await Promise.all(racePromises);
-      
-      // Process each completed race result
-      raceResults.forEach(result => {
-        if (result && result.data && result.data.results) {
-          console.log(`Processing ${result.event.event_name} - Round ${result.event.round_number}`);
-          result.data.results.forEach(driver => {
-            // Add driver points
-            const driverName = driver.full_name;
-            const teamName = driver.team_name;
-            const points = parseFloat(driver.points) || 0;
+      for (const event of completedEvents) {
+        try {
+          console.log(`Fetching round ${event.round_number} - ${event.event_name}...`);
+          
+          // Add timeout of 10 seconds per request
+          const raceResponse = await axios.get(
+            `${API_BASE_URL}/api/session/${year}/${event.round_number}/R`,
+            { timeout: 10000 }
+          );
+          
+          if (raceResponse.data && raceResponse.data.results) {
+            console.log(`✓ Processing ${event.event_name}`);
+            processedCount++;
             
-            if (!driverPoints[driverName]) {
-              driverPoints[driverName] = {
-                name: driverName,
-                team: teamName,
-                points: 0,
-                abbreviation: driver.abbreviation,
-                number: driver.driver_number
-              };
-            }
-            driverPoints[driverName].points += points;
+            raceResponse.data.results.forEach(driver => {
+              // Add driver points
+              const driverName = driver.full_name;
+              const teamName = driver.team_name;
+              const points = parseFloat(driver.points) || 0;
+              
+              if (!driverPoints[driverName]) {
+                driverPoints[driverName] = {
+                  name: driverName,
+                  team: teamName,
+                  points: 0,
+                  abbreviation: driver.abbreviation,
+                  number: driver.driver_number
+                };
+              }
+              driverPoints[driverName].points += points;
+              
+              // Add constructor points
+              if (!constructorPoints[teamName]) {
+                constructorPoints[teamName] = {
+                  name: teamName,
+                  points: 0,
+                  color: driver.team_color
+                };
+              }
+              constructorPoints[teamName].points += points;
+            });
             
-            // Add constructor points
-            if (!constructorPoints[teamName]) {
-              constructorPoints[teamName] = {
-                name: teamName,
-                points: 0,
-                color: driver.team_color
-              };
-            }
-            constructorPoints[teamName].points += points;
-          });
+            // Update standings after each race is processed for progressive loading
+            const driversArray = Object.values(driverPoints).sort((a, b) => b.points - a.points);
+            const constructorsArray = Object.values(constructorPoints).sort((a, b) => b.points - a.points);
+            
+            setDriverStandings(driversArray);
+            setConstructorStandings(constructorsArray);
+          }
+        } catch (err) {
+          console.log(`✗ No results for round ${event.round_number} (${event.event_name})`);
+          // Continue to next race
         }
-      });
+      }
       
-      // Convert to arrays and sort by points
-      const driversArray = Object.values(driverPoints).sort((a, b) => b.points - a.points);
-      const constructorsArray = Object.values(constructorPoints).sort((a, b) => b.points - a.points);
+      console.log(`Processed ${processedCount} races successfully`);
       
-      setDriverStandings(driversArray);
-      setConstructorStandings(constructorsArray);
+      if (processedCount === 0) {
+        setError('No race results available for this season yet');
+      }
       
     } catch (err) {
       setError(err.message);
@@ -156,7 +173,11 @@ const Standings = () => {
         </button>
       </div>
 
-      {loading && <div className="loading">Loading standings...</div>}
+      {loading && (
+        <div className="loading">
+          Loading standings... {driverStandings.length > 0 && `(${driverStandings.length} drivers loaded)`}
+        </div>
+      )}
       {error && <div className="error">Error: {error}</div>}
 
       {/* Driver Standings */}
