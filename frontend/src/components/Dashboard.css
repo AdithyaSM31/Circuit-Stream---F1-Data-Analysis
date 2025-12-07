@@ -41,6 +41,10 @@
   justify-content: center;
 }
 
+.champion-hero {
+  height: 550px;
+}
+
 .hero-background {
   position: absolute;
   top: 0;
@@ -521,12 +525,12 @@
 
 .hero-champion-image {
   position: absolute;
-  bottom: -5%;
-  right: 10%;
-  height: 110%;
+  bottom: 0;
+  right: 5%;
+  height: 100%;
   width: auto;
   object-fit: contain;
-  object-position: bottom center;
+  object-position: bottom right;
   opacity: 0.95;
   filter: drop-shadow(-10px 10px 40px rgba(0, 0, 0, 0.8));
   animation: champion-float 3s ease-in-out infinite;
