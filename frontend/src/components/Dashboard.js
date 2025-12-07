@@ -181,39 +181,61 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-container">
-      {/* Hero Section - Current/Next Race */}
-      {currentEvent && (
-        <div className="hero-section">
-          <div className="hero-background">
-            {getCircuitImageByCountry(currentEvent.country) && (
-              <img 
-                src={getCircuitImageByCountry(currentEvent.country)} 
-                alt={`${currentEvent.event_name} Circuit`}
-                className="hero-circuit-image"
-              />
-            )}
-            <div className="hero-overlay"></div>
+      {/* Hero Section - 2025 World Champion */}
+      <div className="hero-section champion-hero">
+        <div className="hero-background">
+          <img 
+            src="/images/drivers/2025mclarenlannor01right.avif" 
+            alt="Lando Norris - 2025 F1 World Champion"
+            className="hero-champion-image"
+          />
+          <div className="hero-overlay"></div>
+        </div>
+        <div className="hero-content champion-content">
+          <div className="hero-badge champion-badge">🏆 2025 WORLD CHAMPION 🏆</div>
+          <h1 className="hero-title champion-title">LANDO NORRIS</h1>
+          <div className="hero-location">
+            <Trophy size={28} />
+            <span>McLaren F1 Team</span>
           </div>
-          <div className="hero-content">
-            <div className="hero-badge">{getCountdownText(currentEvent.daysDiff)}</div>
-            <h1 className="hero-title">{currentEvent.event_name}</h1>
-            <div className="hero-location">
-              <MapPin size={24} />
-              <span>{currentEvent.location}, {currentEvent.country}</span>
-            </div>
-            <div className="hero-date">
-              <Calendar size={24} />
-              <span>{formatEventDate(currentEvent)}</span>
-            </div>
-            <div className="hero-round">ROUND {currentEvent.round_number}</div>
+          <div className="champion-subtitle">
+            <span>Congratulations to the 2025 Formula 1 World Drivers' Champion!</span>
           </div>
         </div>
-      )}
+      </div>
 
       {/* Main Content Grid */}
       <div className="dashboard-grid">
-        {/* Sessions Schedule */}
-        {currentEvent && (
+        {/* Season Complete Message */}
+        <div className="dashboard-card featured-card season-complete">
+          <div className="card-header">
+            <Trophy size={24} />
+            <h2>🏁 2025 Season Complete 🏁</h2>
+          </div>
+          <div className="season-summary">
+            <p className="season-message">
+              What an incredible season! Lando Norris has clinched his first Formula 1 World Championship title,
+              delivering outstanding performances throughout the 2025 season with McLaren F1 Team.
+            </p>
+            <div className="champion-stats">
+              <div className="champion-stat">
+                <span className="stat-icon">🏆</span>
+                <span className="stat-text">World Champion</span>
+              </div>
+              <div className="champion-stat">
+                <span className="stat-icon">🏎️</span>
+                <span className="stat-text">McLaren F1 Team</span>
+              </div>
+              <div className="champion-stat">
+                <span className="stat-icon">🏁</span>
+                <span className="stat-text">2025 Season</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Sessions Schedule - Hidden when season complete */}
+        {false && currentEvent && (
           <div className="dashboard-card featured-card">
             <div className="card-header">
               <Clock size={24} />
