@@ -525,7 +525,7 @@
 
 .hero-champion-image {
   position: absolute;
-  bottom: 0;
+  bottom: -50px;
   right: 5%;
   height: 100%;
   width: auto;
