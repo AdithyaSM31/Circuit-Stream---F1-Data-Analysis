@@ -521,20 +521,20 @@
 
 .hero-champion-image {
   position: absolute;
-  top: 50%;
-  right: 5%;
-  transform: translateY(-50%);
-  height: 140%;
+  bottom: -5%;
+  right: 10%;
+  height: 110%;
   width: auto;
   object-fit: contain;
-  opacity: 0.9;
+  object-position: bottom center;
+  opacity: 0.95;
   filter: drop-shadow(-10px 10px 40px rgba(0, 0, 0, 0.8));
   animation: champion-float 3s ease-in-out infinite;
 }
 
 @keyframes champion-float {
-  0%, 100% { transform: translateY(-50%); }
-  50% { transform: translateY(-48%); }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
 
 .champion-content {
@@ -657,9 +657,10 @@
 /* Responsive Champion Section */
 @media (max-width: 768px) {
   .hero-champion-image {
-    right: 0;
-    height: 100%;
-    opacity: 0.4;
+    right: -10%;
+    bottom: -5%;
+    height: 90%;
+    opacity: 0.5;
   }
   
   .champion-content {
