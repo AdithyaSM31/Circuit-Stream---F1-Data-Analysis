@@ -36,7 +36,7 @@ const Dashboard = () => {
         const raceDate = event.session5_date || event.session4_date || event.event_date;
         if (raceDate) {
           const eventDate = new Date(raceDate);
-          const daysDiff = Math.ceil((eventDate - now) / (1000 * 60 * 60 * 24));
+          const daysDiff = Math.floor((eventDate - now) / (1000 * 60 * 60 * 24));
           
           // Only show event as current if it's today or in the future (not past races)
           if (daysDiff >= 0 && daysDiff <= 7) {
@@ -62,12 +62,12 @@ const Dashboard = () => {
           const nextEvent = futureEvents[0];
           const raceDate = nextEvent.session5_date || nextEvent.session4_date || nextEvent.event_date;
           const eventDate = new Date(raceDate);
-          const daysDiff = Math.ceil((eventDate - now) / (1000 * 60 * 60 * 24));
+          const daysDiff = Math.floor((eventDate - now) / (1000 * 60 * 60 * 24));
           current = { ...nextEvent, daysDiff };
           upcoming = futureEvents.slice(1, 4).map(e => {
             const raceDate = e.session5_date || e.session4_date || e.event_date;
             const eventDate = new Date(raceDate);
-            const daysDiff = Math.ceil((eventDate - now) / (1000 * 60 * 60 * 24));
+            const daysDiff = Math.floor((eventDate - now) / (1000 * 60 * 60 * 24));
             return { ...e, daysDiff };
           });
         }
