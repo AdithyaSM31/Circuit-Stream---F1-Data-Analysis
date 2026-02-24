@@ -1,12 +1,14 @@
 // Image mapper utility for F1 assets
 
 // Team name mapping to car image filenames
-export const getTeamCarImage = (teamName) => {
+export const getTeamCarImage = (teamName, year = 2026) => {
   const teamMap = {
     'Alpine F1 Team': 'alpine',
     'Aston Martin': 'astonmartin',
+    'Audi': 'audi',
+    'Cadillac': 'cadillac',
     'Ferrari': 'ferrari',
-    'Haas F1 Team': 'haas',
+    'Haas F1 Team': 'haasf1team',
     'Kick Sauber': 'kicksauber',
     'McLaren': 'mclaren',
     'Mercedes': 'mercedes',
@@ -16,12 +18,17 @@ export const getTeamCarImage = (teamName) => {
     'Williams': 'williams'
   };
 
+  // Fallback for 2025 Haas name
+  if (year === 2025 && teamName === 'Haas F1 Team') {
+    return `/images/cars/2025haascarright.avif`;
+  }
+
   const teamKey = teamMap[teamName] || teamName.toLowerCase().replace(/\s+/g, '');
-  return `/images/cars/2025${teamKey}carright.avif`;
+  return `/images/cars/${year}${teamKey}carright.avif`;
 };
 
 // Driver code mapping to driver image filenames
-export const getDriverImage = (driverCode, teamName) => {
+export const getDriverImage = (driverCode, teamName, year = 2026) => {
   const driverMap = {
     // Alpine
     'GAS': { team: 'alpine', code: 'piegas01' },
@@ -32,18 +39,21 @@ export const getDriverImage = (driverCode, teamName) => {
     'ALO': { team: 'astonmartin', code: 'feralo01' },
     'STR': { team: 'astonmartin', code: 'lanstr01' },
     
+    // Audi / Kick Sauber
+    'BOT': { team: year === 2026 ? 'cadillac' : 'kicksauber', code: year === 2026 ? 'valbot01' : 'gabbor01' },
+    'BOR': { team: year === 2026 ? 'audi' : 'kicksauber', code: 'gabbor01' },
+    'HUL': { team: year === 2026 ? 'audi' : 'kicksauber', code: 'nichul01' },
+    
+    // Cadillac
+    'PER': { team: 'cadillac', code: 'serper01' },
+    
     // Ferrari
     'LEC': { team: 'ferrari', code: 'chalec01' },
     'HAM': { team: 'ferrari', code: 'lewham01' },
     
     // Haas
-    'OCO': { team: 'haas', code: 'estoco01' },
-    'BEA': { team: 'haas', code: 'olibea01' },
-    
-    // Kick Sauber
-    'BOT': { team: 'kicksauber', code: 'gabbor01' },
-    'BOR': { team: 'kicksauber', code: 'gabbor01' }, // Gabriel Bortoleto
-    'HUL': { team: 'kicksauber', code: 'nichul01' },
+    'OCO': { team: year === 2026 ? 'haasf1team' : 'haas', code: 'estoco01' },
+    'BEA': { team: year === 2026 ? 'haasf1team' : 'haas', code: 'olibea01' },
     
     // McLaren
     'NOR': { team: 'mclaren', code: 'lannor01' },
@@ -54,8 +64,9 @@ export const getDriverImage = (driverCode, teamName) => {
     'RUS': { team: 'mercedes', code: 'georus01' },
     
     // Racing Bulls
-    'HAD': { team: 'racingbulls', code: 'isahad01' },
+    'HAD': { team: year === 2026 ? 'redbullracing' : 'racingbulls', code: 'isahad01' },
     'LAW': { team: 'racingbulls', code: 'lialaw01' },
+    'LIN': { team: 'racingbulls', code: 'arvlin01' },
     
     // Red Bull Racing
     'VER': { team: 'redbullracing', code: 'maxver01' },
@@ -68,7 +79,7 @@ export const getDriverImage = (driverCode, teamName) => {
 
   const driver = driverMap[driverCode];
   if (driver) {
-    return `/images/drivers/2025${driver.team}${driver.code}right.avif`;
+    return `/images/drivers/${year}${driver.team}${driver.code}right.avif`;
   }
   return null;
 };

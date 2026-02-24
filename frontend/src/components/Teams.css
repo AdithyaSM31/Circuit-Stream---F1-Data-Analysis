@@ -8,11 +8,11 @@
 }
 
 .team-card {
-  background: #15151E;
+  background: #111111;
   border-radius: 15px;
   overflow: hidden;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(225, 6, 0, 0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   transition: all 0.3s ease;
 }
 
@@ -107,7 +107,7 @@
   width: 60px;
   height: 60px;
   object-fit: cover;
-  object-position: center 15%;
+  object-position: top center;
   border-radius: 50%;
   border: 3px solid #E10600;
   box-shadow: 0 4px 12px rgba(225, 6, 0, 0.3);

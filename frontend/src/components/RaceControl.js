@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { axios } from '../config/api';
 import { Flag } from 'lucide-react';
 import API_BASE_URL from '../config/api';
 
@@ -47,7 +47,7 @@ const RaceControl = () => {
       );
       setMessages(response.data);
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.error || err.message);
     } finally {
       setLoading(false);
     }
@@ -86,20 +86,18 @@ const RaceControl = () => {
       <div className="controls">
         <div className="control-group">
           <label>Year</label>
-          <input
-            type="number"
-            value={year}
-            onChange={(e) => setYear(e.target.value)}
-            min="2018"
-            max={new Date().getFullYear()}
-          />
+          <select value={year} onChange={(e) => setYear(parseInt(e.target.value))}>
+            {[2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018].map(y => (
+              <option key={y} value={y}>{y}</option>
+            ))}
+          </select>
         </div>
         <div className="control-group">
           <label>Grand Prix</label>
           <select value={selectedEvent} onChange={(e) => handleEventChange(e.target.value)}>
             {schedule && schedule.length > 0 ? (
-              schedule.map((event) => (
-                <option key={event.round_number} value={event.event_name}>
+              schedule.map((event, index) => (
+                <option key={`${event.round_number}-${event.event_name}-${index}`} value={event.event_name}>
                   {event.event_name}
                 </option>
               ))

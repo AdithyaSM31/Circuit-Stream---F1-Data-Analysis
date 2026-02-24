@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { axios } from '../config/api';
 import { Car, Users } from 'lucide-react';
 import { getTeamCarImage, getDriverImage } from '../utils/imageMapper';
 import API_BASE_URL from '../config/api';
@@ -14,7 +14,7 @@ const Teams = () => {
   useEffect(() => {
     fetchDrivers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [year]);
 
   const fetchDrivers = async () => {
     setLoading(true);
@@ -38,7 +38,7 @@ const Teams = () => {
       const teamsArray = Object.values(teamMap);
       setDrivers(teamsArray);
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.error || err.message);
     } finally {
       setLoading(false);
     }
@@ -62,13 +62,11 @@ const Teams = () => {
       <div className="controls">
         <div className="control-group">
           <label>Year</label>
-          <input
-            type="number"
-            value={year}
-            onChange={(e) => handleYearChange(e.target.value)}
-            min="2018"
-            max={new Date().getFullYear()}
-          />
+          <select value={year} onChange={(e) => handleYearChange(parseInt(e.target.value))}>
+            {[2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018].map(y => (
+              <option key={y} value={y}>{y}</option>
+            ))}
+          </select>
         </div>
         <div className="control-group">
           <label>&nbsp;</label>
@@ -92,10 +90,10 @@ const Teams = () => {
                 }}
               >
                 <h3 className="team-name">{team.teamName}</h3>
-                {getTeamCarImage(team.teamName) && (
+                {getTeamCarImage(team.teamName, year) && (
                   <div className="team-car-container">
                     <img 
-                      src={getTeamCarImage(team.teamName)} 
+                      src={getTeamCarImage(team.teamName, year)} 
                       alt={`${team.teamName} Car`}
                       className="team-car-image"
                     />
@@ -110,9 +108,9 @@ const Teams = () => {
                 </div>
                 {team.drivers.map((driver, driverIndex) => (
                   <div key={driverIndex} className="driver-item">
-                    {getDriverImage(driver.abbreviation, team.teamName) && (
+                    {getDriverImage(driver.abbreviation, team.teamName, year) && (
                       <img 
-                        src={getDriverImage(driver.abbreviation, team.teamName)} 
+                        src={getDriverImage(driver.abbreviation, team.teamName, year)} 
                         alt={driver.full_name}
                         className="driver-image"
                       />

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { axios } from '../config/api';
 import { Calendar } from 'lucide-react';
 import { getCircuitImageByCountry } from '../utils/imageMapper';
 import API_BASE_URL from '../config/api';
@@ -17,7 +17,7 @@ const EventSchedule = () => {
       const response = await axios.get(`${API_BASE_URL}/api/schedule/${year}`);
       setSchedule(response.data);
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.error || err.message);
     } finally {
       setLoading(false);
     }
@@ -152,13 +152,11 @@ const EventSchedule = () => {
       <div className="controls">
         <div className="control-group">
           <label>Year</label>
-          <input
-            type="number"
-            value={year}
-            onChange={(e) => setYear(e.target.value)}
-            min="2018"
-            max={new Date().getFullYear() + 1}
-          />
+          <select value={year} onChange={(e) => setYear(parseInt(e.target.value))}>
+            {[2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018].map(y => (
+              <option key={y} value={y}>{y}</option>
+            ))}
+          </select>
         </div>
         <div className="control-group">
           <label>&nbsp;</label>

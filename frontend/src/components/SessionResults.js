@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { axios } from '../config/api';
 import { Trophy } from 'lucide-react';
 import { getDriverImage } from '../utils/imageMapper';
 import API_BASE_URL from '../config/api';
@@ -48,7 +48,7 @@ const SessionResults = () => {
       );
       setResults(response.data);
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.error || err.message);
     } finally {
       setLoading(false);
     }
@@ -71,13 +71,11 @@ const SessionResults = () => {
       <div className="controls">
         <div className="control-group">
           <label>Year</label>
-          <input
-            type="number"
-            value={year}
-            onChange={(e) => setYear(e.target.value)}
-            min="2018"
-            max={new Date().getFullYear()}
-          />
+          <select value={year} onChange={(e) => setYear(parseInt(e.target.value))}>
+            {[2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018].map(y => (
+              <option key={y} value={y}>{y}</option>
+            ))}
+          </select>
         </div>
         <div className="control-group">
           <label>Grand Prix</label>
@@ -88,7 +86,7 @@ const SessionResults = () => {
           >
             {schedule && schedule.length > 0 ? (
               schedule.map((event, index) => (
-                <option key={index} value={event.event_name}>
+                <option key={`${event.round_number}-${event.event_name}-${index}`} value={event.event_name}>
                   {event.event_name}
                 </option>
               ))
@@ -142,7 +140,7 @@ const SessionResults = () => {
                   </td>
                   <td>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                      {getDriverImage(driver.abbreviation, driver.team_name) && (
+                      {getDriverImage(driver.abbreviation, driver.team_name, year) && (
                         <div style={{
                           width: '50px',
                           height: '50px',
@@ -155,13 +153,13 @@ const SessionResults = () => {
                           background: '#1A1A24'
                         }}>
                           <img 
-                            src={getDriverImage(driver.abbreviation, driver.team_name)} 
+                            src={getDriverImage(driver.abbreviation, driver.team_name, year)} 
                             alt={driver.full_name}
                             style={{
                               width: '120%',
                               height: 'auto',
                               objectFit: 'cover',
-                              objectPosition: 'center 15%',
+                              objectPosition: 'top center',
                               marginTop: '-5px'
                             }}
                           />

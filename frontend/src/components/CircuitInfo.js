@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { axios } from '../config/api';
 import { MapPin } from 'lucide-react';
 import { getCircuitImageByCountry } from '../utils/imageMapper';
 import API_BASE_URL from '../config/api';
@@ -47,7 +47,7 @@ const CircuitInfo = () => {
       );
       setCircuitInfo(response.data);
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.error || err.message);
     } finally {
       setLoading(false);
     }
@@ -63,20 +63,18 @@ const CircuitInfo = () => {
       <div className="controls">
         <div className="control-group">
           <label>Year</label>
-          <input
-            type="number"
-            value={year}
-            onChange={(e) => setYear(e.target.value)}
-            min="2018"
-            max={new Date().getFullYear()}
-          />
+          <select value={year} onChange={(e) => setYear(parseInt(e.target.value))}>
+            {[2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018].map(y => (
+              <option key={y} value={y}>{y}</option>
+            ))}
+          </select>
         </div>
         <div className="control-group">
           <label>Grand Prix</label>
           <select value={selectedEvent} onChange={(e) => handleEventChange(e.target.value)}>
             {schedule && schedule.length > 0 ? (
-              schedule.map((event) => (
-                <option key={event.round_number} value={event.event_name}>
+              schedule.map((event, index) => (
+                <option key={`${event.round_number}-${event.event_name}-${index}`} value={event.event_name}>
                   {event.event_name}
                 </option>
               ))
@@ -179,70 +177,6 @@ const CircuitInfo = () => {
               />
             </div>
           )}
-          
-          {/* Technical Details */}
-          <div className="data-card" style={{ marginBottom: '2rem' }}>
-            <h3 style={{ color: '#E10600', marginBottom: '1rem' }}>
-              Technical Details
-            </h3>
-            
-            {circuitInfo.event_info.official_name && (
-              <div style={{ marginBottom: '1rem', padding: '1rem', background: 'rgba(225, 6, 0, 0.1)', borderRadius: '8px' }}>
-                <strong style={{ color: '#E10600' }}>Official Name:</strong>
-                <div style={{ marginTop: '0.5rem', fontSize: '1.1rem' }}>
-                  {circuitInfo.event_info.official_name}
-                </div>
-              </div>
-            )}
-
-            {circuitInfo.circuit_info.rotation !== null && (
-              <div style={{ marginBottom: '1rem' }}>
-                <strong>Track Rotation:</strong> {circuitInfo.circuit_info.rotation}°
-              </div>
-            )}
-
-            {circuitInfo.event_info.event_format && (
-              <div style={{ marginBottom: '1rem' }}>
-                <strong>Event Format:</strong> {circuitInfo.event_info.event_format}
-              </div>
-            )}
-
-            {circuitInfo.circuit_info.corners && circuitInfo.circuit_info.corners.length > 0 && (
-              <div>
-                <h4 style={{ marginTop: '1.5rem', marginBottom: '1rem', color: '#333' }}>
-                  Corner Breakdown ({circuitInfo.circuit_info.corners.length} Corners)
-                </h4>
-                <div style={{ 
-                  display: 'grid', 
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
-                  gap: '1rem'
-                }}>
-                  {circuitInfo.circuit_info.corners.map((corner, index) => (
-                    <div 
-                      key={index}
-                      style={{
-                        padding: '1rem',
-                        background: 'linear-gradient(135deg, #E10600 0%, #8B0000 100%)',
-                        color: 'white',
-                        borderRadius: '10px',
-                        textAlign: 'center',
-                        fontWeight: 'bold',
-                        fontSize: '1.1rem'
-                      }}
-                    >
-                      Turn {corner.number || index + 1}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {(!circuitInfo.circuit_info.corners || circuitInfo.circuit_info.corners.length === 0) && (
-              <p style={{ color: '#666', fontStyle: 'italic', marginTop: '1rem' }}>
-                Detailed corner information not available for this circuit.
-              </p>
-            )}
-          </div>
         </div>
       )}
     </div>

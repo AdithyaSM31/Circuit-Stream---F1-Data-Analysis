@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { axios } from '../config/api';
 import { Clock } from 'lucide-react';
 import API_BASE_URL from '../config/api';
 
@@ -50,7 +50,7 @@ const LapTiming = () => {
       const response = await axios.get(url);
       setLaps(response.data);
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.error || err.message);
     } finally {
       setLoading(false);
     }
@@ -66,13 +66,11 @@ const LapTiming = () => {
       <div className="controls">
         <div className="control-group">
           <label>Year</label>
-          <input
-            type="number"
-            value={year}
-            onChange={(e) => setYear(e.target.value)}
-            min="2018"
-            max={new Date().getFullYear()}
-          />
+          <select value={year} onChange={(e) => setYear(parseInt(e.target.value))}>
+            {[2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018].map(y => (
+              <option key={y} value={y}>{y}</option>
+            ))}
+          </select>
         </div>
         <div className="control-group">
           <label>Grand Prix</label>
@@ -83,7 +81,7 @@ const LapTiming = () => {
           >
             {schedule && schedule.length > 0 ? (
               schedule.map((event, index) => (
-                <option key={index} value={event.event_name}>
+                <option key={`${event.round_number}-${event.event_name}-${index}`} value={event.event_name}>
                   {event.event_name}
                 </option>
               ))
@@ -148,7 +146,7 @@ const LapTiming = () => {
               </thead>
               <tbody>
                 {laps.laps.map((lap, index) => (
-                  <tr key={index} style={lap.is_personal_best ? { background: '#d4edda' } : {}}>
+                  <tr key={index} className={lap.is_personal_best ? 'personal-best-row' : ''}>
                     <td><strong>{lap.lap_number}</strong></td>
                     <td>{lap.driver}</td>
                     <td><strong>{lap.lap_time || '-'}</strong></td>
