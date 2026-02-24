@@ -9,7 +9,7 @@ import Telemetry from './components/Telemetry';
 import RaceControl from './components/RaceControl';
 import CircuitInfo from './components/CircuitInfo';
 import Teams from './components/Teams';
-import { Flag, Calendar, Trophy, Clock, Activity, MapPin, Home, Car, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import API_BASE_URL from './config/api';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { Capacitor } from '@capacitor/core';

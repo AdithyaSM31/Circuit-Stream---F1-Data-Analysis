@@ -115,21 +115,6 @@ const Dashboard = () => {
       year: 'numeric' 
     });
   };
-  
-  // Format date for hero section - uses the race/main session date
-  const formatEventDate = (event) => {
-    // Try to get the main race date (session5 is usually the race)
-    const raceDate = event.session5_date || event.session4_date || event.session3_date || event.event_date;
-    if (!raceDate) return formatDate(event.event_date);
-    
-    const date = new Date(raceDate);
-    return date.toLocaleDateString('en-IN', {
-      timeZone: 'Asia/Kolkata',
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric'
-    });
-  };
 
   const formatSessionTime = (dateString) => {
     if (!dateString) return '';
