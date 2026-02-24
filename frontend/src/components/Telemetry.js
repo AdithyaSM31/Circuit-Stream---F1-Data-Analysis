@@ -21,6 +21,7 @@ const Telemetry = () => {
   useEffect(() => {
     fetchSchedule();
     fetchDrivers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [year]);
 
   const fetchSchedule = async () => {

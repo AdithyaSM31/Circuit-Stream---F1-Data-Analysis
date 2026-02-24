@@ -16,6 +16,7 @@ const SessionResults = () => {
 
   React.useEffect(() => {
     fetchSchedule();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [year]);
 
   const fetchSchedule = async () => {

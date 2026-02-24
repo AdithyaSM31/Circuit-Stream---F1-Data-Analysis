@@ -25,6 +25,7 @@ const EventSchedule = () => {
 
   useEffect(() => {
     fetchSchedule();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const formatDateWithTimezone = (dateString) => {
