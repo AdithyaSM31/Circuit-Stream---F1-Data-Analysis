@@ -2,7 +2,7 @@
 
 A modern, real-time Formula 1 data analysis web application built with FastF1, Flask, and React.
 
-![Circuit Stream Logo](logo.png)
+![Circuit Stream Logo](new_logo.png)
 
 ## 🏎️ Features
 
