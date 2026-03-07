@@ -31,47 +31,7 @@ const Dashboard = () => {
       let current = null;
       let upcoming = [];
       
-      for (let event of events) {
-        // Use the race date (session5 is usually the race) for more accurate countdown
-        const raceDate = event.session5_date || event.session4_date || event.event_date;
-        if (raceDate) {
-          const eventDate = new Date(raceDate);
-          const daysDiff = Math.floor((eventDate - now) / (1000 * 60 * 60 * 24));
-          
-          // Only show event as current if it's today or in the future (not past races)
-          if (daysDiff >= 0 && daysDiff <= 7) {
-            // Event is happening now or within the next week
-            current = { ...event, daysDiff };
-          } else if (daysDiff > 7 && upcoming.length < 3) {
-            // Future events
-            upcoming.push({ ...event, daysDiff });
-          }
-        }
-      }
-      
-      // If no current event, get the next one
-      if (!current && events.length > 0) {
-        const futureEvents = events.filter(e => {
-          const raceDate = e.session5_date || e.session4_date || e.event_date;
-          if (!raceDate) return false;
-          const eventDate = new Date(raceDate);
-          return eventDate > now;
-        });
-        
-        if (futureEvents.length > 0) {
-          const nextEvent = futureEvents[0];
-          const raceDate = nextEvent.session5_date || nextEvent.session4_date || nextEvent.event_date;
-          const eventDate = new Date(raceDate);
-          const daysDiff = Math.floor((eventDate - now) / (1000 * 60 * 60 * 24));
-          current = { ...nextEvent, daysDiff };
-          upcoming = futureEvents.slice(1, 4).map(e => {
-            const raceDate = e.session5_date || e.session4_date || e.event_date;
-            const eventDate = new Date(raceDate);
-            const daysDiff = Math.floor((eventDate - now) / (1000 * 60 * 60 * 24));
-            return { ...e, daysDiff };
-          });
-        }
-      }
+      const futureEvents = events.filter(e => { const raceDate = e.session5_date || e.session4_date || e.event_date; if (!raceDate) return false; const eventDate = new Date(raceDate); return eventDate.getTime() >= now.getTime() - (1000 * 60 * 60 * 24 * 1); }); if (futureEvents.length > 0) { const nextEvent = futureEvents[0]; const raceDate = nextEvent.session5_date || nextEvent.session4_date || nextEvent.event_date; const eventDate = new Date(raceDate); let daysDiff = Math.ceil((eventDate - now) / (1000 * 60 * 60 * 24)); if (daysDiff < 0) daysDiff = 0; current = { ...nextEvent, daysDiff }; upcoming = futureEvents.slice(1, 4).map(e => { const rDate = e.session5_date || e.session4_date || e.event_date; const eDate = new Date(rDate); let dDiff = Math.ceil((eDate - now) / (1000 * 60 * 60 * 24)); if (dDiff < 0) dDiff = 0; return { ...e, daysDiff: dDiff }; }); } 
       
       setSchedule(response.data);
       setCurrentEvent(current);
@@ -321,3 +281,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
