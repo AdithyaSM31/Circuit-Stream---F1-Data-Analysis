@@ -55,7 +55,9 @@ const EventSchedule = () => {
     if (!raceDate) return 'upcoming';
     
     const eventDate = new Date(raceDate);
-    const daysDiff = Math.ceil((eventDate - now) / (1000 * 60 * 60 * 24));
+    const eventDay = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate());
+    const todayDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const daysDiff = Math.round((eventDay - todayDay) / (1000 * 60 * 60 * 24));
     
     if (daysDiff < 0) return 'past';
     if (daysDiff <= 7) return 'current';
