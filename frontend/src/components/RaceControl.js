@@ -18,6 +18,13 @@ const RaceControl = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [year]);
 
+  useEffect(() => {
+    if (round) {
+      fetchMessages();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [round, sessionType]);
+
   const fetchSchedule = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/api/schedule/${year}`);
@@ -78,23 +85,18 @@ const RaceControl = () => {
   };
 
   return (
-    <div className="page-container">
-      <h2 className="page-title">
-        <Flag size={32} />
-        Race Control Messages
-      </h2>
-
-      <div className="controls">
-        <div className="control-group">
-          <label>Year</label>
+    <div className="premium-container">
+      <div className="premium-header">
+        <div className="header-title">
+          <Flag size={32} color="#E10600" />
+          <h1>Race Control Messages</h1>
+        </div>
+        <div className="year-selector" style={{ display: 'flex', gap: '1rem' }}>
           <select value={year} onChange={(e) => setYear(parseInt(e.target.value))}>
             {[2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018].map(y => (
               <option key={y} value={y}>{y}</option>
             ))}
           </select>
-        </div>
-        <div className="control-group">
-          <label>Grand Prix</label>
           <select value={selectedEvent} onChange={(e) => handleEventChange(e.target.value)}>
             {schedule && schedule.length > 0 ? (
               schedule.map((event, index) => (
@@ -106,9 +108,6 @@ const RaceControl = () => {
               <option value="">Loading events...</option>
             )}
           </select>
-        </div>
-        <div className="control-group">
-          <label>Session Type</label>
           <select value={sessionType} onChange={(e) => setSessionType(e.target.value)}>
             <option value="R">Race</option>
             <option value="Q">Qualifying</option>
@@ -117,12 +116,6 @@ const RaceControl = () => {
             <option value="FP2">Practice 2</option>
             <option value="FP3">Practice 3</option>
           </select>
-        </div>
-        <div className="control-group">
-          <label>&nbsp;</label>
-          <button onClick={fetchMessages} className="btn-primary">
-            Load Messages
-          </button>
         </div>
       </div>
 
@@ -137,7 +130,7 @@ const RaceControl = () => {
 
           <div className="data-grid">
             {messages.messages.map((msg, index) => (
-              <div key={index} className="data-card">
+              <div key={index} className="premium-card">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     {msg.flag && (

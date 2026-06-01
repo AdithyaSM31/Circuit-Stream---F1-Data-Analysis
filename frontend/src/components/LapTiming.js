@@ -19,6 +19,13 @@ const LapTiming = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [year]);
 
+  React.useEffect(() => {
+    if (round) {
+      fetchLaps();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [round, sessionType]);
+
   const fetchSchedule = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/api/schedule/${year}`);
@@ -58,27 +65,21 @@ const LapTiming = () => {
   };
 
   return (
-    <div className="page-container">
-      <h2 className="page-title">
-        <Clock size={32} />
-        Lap Timing Data
-      </h2>
-
-      <div className="controls">
-        <div className="control-group">
-          <label>Year</label>
+    <div className="premium-container">
+      <div className="premium-header">
+        <div className="header-title">
+          <Clock size={32} color="#E10600" />
+          <h1>Lap Timing Data</h1>
+        </div>
+        <div className="year-selector" style={{ display: 'flex', gap: '1rem' }}>
           <select value={year} onChange={(e) => setYear(parseInt(e.target.value))}>
             {[2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018].map(y => (
               <option key={y} value={y}>{y}</option>
             ))}
           </select>
-        </div>
-        <div className="control-group">
-          <label>Grand Prix</label>
           <select 
             value={selectedEvent} 
             onChange={(e) => handleEventChange(e.target.value)}
-            style={{ minWidth: '200px' }}
           >
             {schedule && schedule.length > 0 ? (
               schedule.map((event, index) => (
@@ -90,9 +91,6 @@ const LapTiming = () => {
               <option value="">Loading events...</option>
             )}
           </select>
-        </div>
-        <div className="control-group">
-          <label>Session Type</label>
           <select value={sessionType} onChange={(e) => setSessionType(e.target.value)}>
             <option value="R">Race</option>
             <option value="Q">Qualifying</option>
@@ -101,21 +99,23 @@ const LapTiming = () => {
             <option value="FP2">Practice 2</option>
             <option value="FP3">Practice 3</option>
           </select>
-        </div>
-        <div className="control-group">
-          <label>Driver Number (Optional)</label>
           <input
             type="text"
             value={driverNumber}
             onChange={(e) => setDriverNumber(e.target.value)}
-            placeholder="e.g., 1, 44"
+            onBlur={fetchLaps}
+            onKeyDown={(e) => e.key === 'Enter' && fetchLaps()}
+            placeholder="Driver # (e.g. 1)"
+            style={{ 
+              background: 'rgba(255, 255, 255, 0.1)', 
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              color: 'white',
+              padding: '0.5rem 1rem',
+              borderRadius: '8px',
+              fontFamily: 'Formula1',
+              width: '180px'
+            }}
           />
-        </div>
-        <div className="control-group">
-          <label>&nbsp;</label>
-          <button onClick={fetchLaps} className="btn-primary">
-            Load Laps
-          </button>
         </div>
       </div>
 

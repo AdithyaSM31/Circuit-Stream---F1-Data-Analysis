@@ -415,6 +415,63 @@ h1, h2, h3, h4, h5, h6 {
   color: white;
 }
 
+/* Premium Card (Used in Race Control, Circuit Info) */
+.premium-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.premium-card:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(225, 6, 0, 0.3);
+}
+
+/* Premium Tables (Used in Results, Lap Times, Telemetry) */
+.table-container {
+  overflow-x: auto;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  margin-top: 1rem;
+}
+
+.table-container table {
+  width: 100%;
+  border-collapse: collapse;
+  color: white;
+}
+
+.table-container th {
+  background: rgba(225, 6, 0, 0.1);
+  color: #E10600;
+  font-family: 'Formula1', 'Titillium Web', sans-serif;
+  text-transform: uppercase;
+  padding: 1rem;
+  text-align: left;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+}
+
+.table-container td {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.2s;
+}
+
+.table-container tbody tr:hover td {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.table-container tbody tr:last-child td {
+  border-bottom: none;
+}
+
 .page-title {
   font-size: 3rem;
   color: white;

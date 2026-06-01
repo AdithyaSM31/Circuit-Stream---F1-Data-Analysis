@@ -19,6 +19,13 @@ const SessionResults = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [year]);
 
+  React.useEffect(() => {
+    if (round) {
+      fetchResults();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [round, sessionType]);
+
   const fetchSchedule = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/api/schedule/${year}`);
@@ -63,27 +70,21 @@ const SessionResults = () => {
   };
 
   return (
-    <div className="page-container">
-      <h2 className="page-title">
-        <Trophy size={32} />
-        Session Results
-      </h2>
-
-      <div className="controls">
-        <div className="control-group">
-          <label>Year</label>
+    <div className="premium-container">
+      <div className="premium-header">
+        <div className="header-title">
+          <Trophy size={32} color="#E10600" />
+          <h1>Session Results</h1>
+        </div>
+        <div className="year-selector" style={{ display: 'flex', gap: '1rem' }}>
           <select value={year} onChange={(e) => setYear(parseInt(e.target.value))}>
             {[2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018].map(y => (
               <option key={y} value={y}>{y}</option>
             ))}
           </select>
-        </div>
-        <div className="control-group">
-          <label>Grand Prix</label>
           <select 
             value={selectedEvent} 
             onChange={(e) => handleEventChange(e.target.value)}
-            style={{ minWidth: '200px' }}
           >
             {schedule && schedule.length > 0 ? (
               schedule.map((event, index) => (
@@ -95,9 +96,6 @@ const SessionResults = () => {
               <option value="">Loading events...</option>
             )}
           </select>
-        </div>
-        <div className="control-group">
-          <label>Session Type</label>
           <select value={sessionType} onChange={(e) => setSessionType(e.target.value)}>
             <option value="R">Race</option>
             <option value="Q">Qualifying</option>
@@ -106,12 +104,6 @@ const SessionResults = () => {
             <option value="FP2">Practice 2</option>
             <option value="FP3">Practice 3</option>
           </select>
-        </div>
-        <div className="control-group">
-          <label>&nbsp;</label>
-          <button onClick={fetchResults} className="btn-primary">
-            Load Results
-          </button>
         </div>
       </div>
 
@@ -142,29 +134,12 @@ const SessionResults = () => {
                   <td>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                       {getDriverImage(driver.abbreviation, driver.team_name, year) && (
-                        <div style={{
-                          width: '50px',
-                          height: '50px',
-                          borderRadius: '50%',
-                          border: '2px solid #E10600',
-                          overflow: 'hidden',
-                          display: 'flex',
-                          alignItems: 'flex-start',
-                          justifyContent: 'center',
-                          background: '#1A1A24'
-                        }}>
-                          <img 
-                            src={getDriverImage(driver.abbreviation, driver.team_name, year)} 
-                            alt={driver.full_name}
-                            style={{
-                              width: '120%',
-                              height: 'auto',
-                              objectFit: 'cover',
-                              objectPosition: 'top center',
-                              marginTop: '-5px'
-                            }}
-                          />
-                        </div>
+                        <img 
+                          src={getDriverImage(driver.abbreviation, driver.team_name, year)} 
+                          alt={driver.full_name}
+                          className="team-driver-avatar"
+                          style={{ width: '40px', height: '40px', border: `2px solid #${driver.team_color || 'E10600'}` }}
+                        />
                       )}
                       <div>
                         <strong>{driver.abbreviation}</strong>

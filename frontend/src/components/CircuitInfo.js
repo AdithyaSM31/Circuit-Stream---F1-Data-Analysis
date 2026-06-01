@@ -18,6 +18,13 @@ const CircuitInfo = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [year]);
 
+  useEffect(() => {
+    if (round) {
+      fetchCircuitInfo();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [round]);
+
   const fetchSchedule = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/api/schedule/${year}`);
@@ -55,23 +62,18 @@ const CircuitInfo = () => {
   };
 
   return (
-    <div className="page-container">
-      <h2 className="page-title">
-        <MapPin size={32} />
-        Circuit Information
-      </h2>
-
-      <div className="controls">
-        <div className="control-group">
-          <label>Year</label>
+    <div className="premium-container">
+      <div className="premium-header">
+        <div className="header-title">
+          <MapPin size={32} color="#E10600" />
+          <h1>Circuit Information</h1>
+        </div>
+        <div className="year-selector" style={{ display: 'flex', gap: '1rem' }}>
           <select value={year} onChange={(e) => setYear(parseInt(e.target.value))}>
             {[2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018].map(y => (
               <option key={y} value={y}>{y}</option>
             ))}
           </select>
-        </div>
-        <div className="control-group">
-          <label>Grand Prix</label>
           <select value={selectedEvent} onChange={(e) => handleEventChange(e.target.value)}>
             {schedule && schedule.length > 0 ? (
               schedule.map((event, index) => (
@@ -84,12 +86,6 @@ const CircuitInfo = () => {
             )}
           </select>
         </div>
-        <div className="control-group">
-          <label>&nbsp;</label>
-          <button onClick={fetchCircuitInfo} className="btn-primary">
-            Load Circuit Info
-          </button>
-        </div>
       </div>
 
       {loading && <div className="loading">Loading circuit information...</div>}
@@ -99,7 +95,7 @@ const CircuitInfo = () => {
         <div>
           {/* Circuit Header with Key Stats */}
           {circuitInfo.event_info && (
-            <div className="data-card" style={{ 
+            <div className="premium-card" style={{ 
               marginBottom: '2rem',
               background: 'linear-gradient(135deg, rgba(225, 6, 0, 0.1) 0%, rgba(21, 21, 30, 0.9) 100%)',
               border: '2px solid #E10600'
@@ -157,10 +153,8 @@ const CircuitInfo = () => {
 
           {/* Circuit Image */}
           {circuitInfo.event_info && getCircuitImageByCountry(circuitInfo.event_info.country) && (
-            <div className="data-card" style={{ 
+            <div className="premium-card" style={{ 
               marginBottom: '2rem', 
-              overflow: 'hidden',
-              background: 'rgba(0, 0, 0, 0.3)',
               padding: '2rem'
             }}>
               <h3 style={{ color: '#E10600', marginBottom: '1.5rem', textAlign: 'center' }}>

@@ -24,6 +24,13 @@ const Telemetry = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [year]);
 
+  useEffect(() => {
+    if (round && driverNumber) {
+      fetchTelemetry();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [round, sessionType, driverNumber]);
+
   const fetchSchedule = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/api/schedule/${year}`);
@@ -79,23 +86,19 @@ const Telemetry = () => {
   };
 
   return (
-    <div className="page-container">
-      <h2 className="page-title">
-        <Activity size={32} />
-        Telemetry Data
-      </h2>
-
-      <div className="controls">
-        <div className="control-group">
-          <label>Year</label>
+  return (
+    <div className="premium-container">
+      <div className="premium-header">
+        <div className="header-title">
+          <Activity size={32} color="#E10600" />
+          <h1>Telemetry Data</h1>
+        </div>
+        <div className="year-selector" style={{ display: 'flex', gap: '1rem' }}>
           <select value={year} onChange={(e) => setYear(parseInt(e.target.value))}>
             {[2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018].map(y => (
               <option key={y} value={y}>{y}</option>
             ))}
           </select>
-        </div>
-        <div className="control-group">
-          <label>Grand Prix</label>
           <select value={selectedEvent} onChange={(e) => handleEventChange(e.target.value)}>
             {schedule && schedule.length > 0 ? (
               schedule.map((event, index) => (
@@ -107,9 +110,6 @@ const Telemetry = () => {
               <option value="">Loading events...</option>
             )}
           </select>
-        </div>
-        <div className="control-group">
-          <label>Session Type</label>
           <select value={sessionType} onChange={(e) => setSessionType(e.target.value)}>
             <option value="R">Race</option>
             <option value="Q">Qualifying</option>
@@ -118,35 +118,37 @@ const Telemetry = () => {
             <option value="FP2">Practice 2</option>
             <option value="FP3">Practice 3</option>
           </select>
-        </div>
-        <div className="control-group">
-          <label>Driver</label>
           <select value={selectedDriver} onChange={(e) => handleDriverChange(e.target.value)}>
             {drivers && drivers.length > 0 ? (
               drivers.map((driver) => (
                 <option key={driver.number} value={driver.number}>
-                  {driver.full_name} (#{driver.number})
+                  {driver.full_name}
                 </option>
               ))
             ) : (
-              <option value="">Loading drivers...</option>
+              <option value="">Drivers...</option>
             )}
           </select>
-        </div>
-        <div className="control-group">
-          <label>Lap Number</label>
-          <input
-            type="number"
-            value={lapNumber}
-            onChange={(e) => setLapNumber(e.target.value)}
-            min="1"
-          />
-        </div>
-        <div className="control-group">
-          <label>&nbsp;</label>
-          <button onClick={fetchTelemetry} className="btn-primary">
-            Load Telemetry
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.7)' }}>Lap:</span>
+            <input
+              type="number"
+              value={lapNumber}
+              onChange={(e) => setLapNumber(e.target.value)}
+              onBlur={fetchTelemetry}
+              onKeyDown={(e) => e.key === 'Enter' && fetchTelemetry()}
+              min="1"
+              style={{
+                background: 'rgba(255, 255, 255, 0.1)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                color: 'white',
+                padding: '0.5rem',
+                borderRadius: '8px',
+                fontFamily: 'Formula1',
+                width: '60px'
+              }}
+            />
+          </div>
         </div>
       </div>
 
@@ -160,7 +162,7 @@ const Telemetry = () => {
           </p>
 
           <div style={{ marginTop: '2rem' }}>
-            <h3 style={{ marginBottom: '1rem', color: '#667eea' }}>Speed (km/h)</h3>
+            <h3 style={{ marginBottom: '1rem', color: '#E10600', fontFamily: 'Formula1' }}>Speed (km/h)</h3>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={telemetry.telemetry}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -168,13 +170,13 @@ const Telemetry = () => {
                 <YAxis label={{ value: 'Speed (km/h)', angle: -90, position: 'insideLeft' }} />
                 <Tooltip />
                 <Legend />
-                <Line type="monotone" dataKey="speed" stroke="#667eea" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="speed" stroke="#E10600" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>
 
           <div style={{ marginTop: '2rem' }}>
-            <h3 style={{ marginBottom: '1rem', color: '#667eea' }}>RPM</h3>
+            <h3 style={{ marginBottom: '1rem', color: '#64C4FF', fontFamily: 'Formula1' }}>RPM</h3>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={telemetry.telemetry}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -182,13 +184,13 @@ const Telemetry = () => {
                 <YAxis label={{ value: 'RPM', angle: -90, position: 'insideLeft' }} />
                 <Tooltip />
                 <Legend />
-                <Line type="monotone" dataKey="rpm" stroke="#764ba2" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="rpm" stroke="#64C4FF" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>
 
           <div style={{ marginTop: '2rem' }}>
-            <h3 style={{ marginBottom: '1rem', color: '#667eea' }}>Throttle & Gear</h3>
+            <h3 style={{ marginBottom: '1rem', color: '#4CAF50', fontFamily: 'Formula1' }}>Throttle & Gear</h3>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={telemetry.telemetry}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -197,8 +199,8 @@ const Telemetry = () => {
                 <YAxis yAxisId="right" orientation="right" label={{ value: 'Gear', angle: 90, position: 'insideRight' }} />
                 <Tooltip />
                 <Legend />
-                <Line yAxisId="left" type="monotone" dataKey="throttle" stroke="#28a745" strokeWidth={2} dot={false} />
-                <Line yAxisId="right" type="stepAfter" dataKey="gear" stroke="#ffc107" strokeWidth={2} dot={false} />
+                <Line yAxisId="left" type="monotone" dataKey="throttle" stroke="#4CAF50" strokeWidth={2} dot={false} />
+                <Line yAxisId="right" type="stepAfter" dataKey="gear" stroke="#FFB800" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>
