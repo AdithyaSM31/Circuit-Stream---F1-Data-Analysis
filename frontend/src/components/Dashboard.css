@@ -447,10 +447,17 @@
 }
 
 /* Stats */
+.stats-card {
+  display: flex;
+  flex-direction: column;
+}
+
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
+  flex: 1;
+  align-content: center;
 }
 
 .stat-item {
