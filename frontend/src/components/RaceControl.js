@@ -18,13 +18,6 @@ const RaceControl = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [year]);
 
-  useEffect(() => {
-    if (round) {
-      fetchMessages();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [round, sessionType]);
-
   const fetchSchedule = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/api/schedule/${year}`);
@@ -116,6 +109,9 @@ const RaceControl = () => {
             <option value="FP2">Practice 2</option>
             <option value="FP3">Practice 3</option>
           </select>
+          <button onClick={fetchMessages} className="premium-btn">
+            Load Messages
+          </button>
         </div>
       </div>
 

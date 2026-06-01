@@ -18,13 +18,6 @@ const CircuitInfo = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [year]);
 
-  useEffect(() => {
-    if (round) {
-      fetchCircuitInfo();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [round]);
-
   const fetchSchedule = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/api/schedule/${year}`);
@@ -85,6 +78,9 @@ const CircuitInfo = () => {
               <option value="">Loading events...</option>
             )}
           </select>
+          <button onClick={fetchCircuitInfo} className="premium-btn">
+            Load Circuit Info
+          </button>
         </div>
       </div>
 

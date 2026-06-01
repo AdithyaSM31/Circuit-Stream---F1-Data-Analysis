@@ -19,13 +19,6 @@ const LapTiming = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [year]);
 
-  React.useEffect(() => {
-    if (round) {
-      fetchLaps();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [round, sessionType]);
-
   const fetchSchedule = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/api/schedule/${year}`);
@@ -103,8 +96,6 @@ const LapTiming = () => {
             type="text"
             value={driverNumber}
             onChange={(e) => setDriverNumber(e.target.value)}
-            onBlur={fetchLaps}
-            onKeyDown={(e) => e.key === 'Enter' && fetchLaps()}
             placeholder="Driver # (e.g. 1)"
             style={{ 
               background: 'rgba(255, 255, 255, 0.1)', 
@@ -116,6 +107,9 @@ const LapTiming = () => {
               width: '180px'
             }}
           />
+          <button onClick={fetchLaps} className="premium-btn">
+            Load Laps
+          </button>
         </div>
       </div>
 

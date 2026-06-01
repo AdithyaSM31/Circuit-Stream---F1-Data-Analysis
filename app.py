@@ -54,10 +54,37 @@ def update_cache_background():
     try:
         with app.app_context():
             with app.test_client() as client:
-                client.get('/api/schedule/2026')
+                # 1. Fetch Schedule & Standings
+                sched_resp = client.get('/api/schedule/2026')
                 client.get('/api/drivers/2026')
                 client.get('/api/standings/drivers/2026')
                 client.get('/api/standings/constructors/2026')
+                
+                # 2. Extract last race round from schedule to cache Dashboard's podium
+                if sched_resp.status_code == 200:
+                    try:
+                        import json
+                        data = json.loads(sched_resp.data)
+                        events = data.get('events', [])
+                        from datetime import datetime
+                        now = datetime.now()
+                        
+                        last_completed_round = None
+                        for event in events:
+                            race_date_str = event.get('session5_date') or event.get('session4_date') or event.get('event_date')
+                            if race_date_str:
+                                race_date = datetime.fromisoformat(race_date_str.replace('Z', '+00:00')).replace(tzinfo=None)
+                                if race_date < now:
+                                    last_completed_round = event.get('round_number')
+                                    
+                        if last_completed_round and last_completed_round > 0:
+                            # Pre-cache the last race result for the Dashboard
+                            session_url = f'/api/session/2026/{last_completed_round}/R'
+                            cache.delete(f'view/{session_url}')
+                            client.get(session_url)
+                            logger.info(f"Pre-cached last race results: Round {last_completed_round}")
+                    except Exception as e:
+                        logger.error(f"Failed to pre-cache last race results: {e}")
         logger.info("Background cache update completed successfully.")
     except Exception as e:
         logger.error(f"Error in background cache update: {e}")

@@ -19,13 +19,6 @@ const SessionResults = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [year]);
 
-  React.useEffect(() => {
-    if (round) {
-      fetchResults();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [round, sessionType]);
-
   const fetchSchedule = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/api/schedule/${year}`);
@@ -104,6 +97,9 @@ const SessionResults = () => {
             <option value="FP2">Practice 2</option>
             <option value="FP3">Practice 3</option>
           </select>
+          <button onClick={fetchResults} className="premium-btn">
+            Load Results
+          </button>
         </div>
       </div>
 

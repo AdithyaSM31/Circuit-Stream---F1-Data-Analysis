@@ -154,7 +154,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="dashboard-container">
+    <div className="premium-container dashboard-container">
       {/* Hero Section */}
       {currentEvent ? (
         <div className="hero-section">

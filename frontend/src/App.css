@@ -476,6 +476,32 @@ h1, h2, h3, h4, h5, h6 {
   border-bottom: none;
 }
 
+/* Premium Button (Used for Manual Data Trigger) */
+.premium-btn {
+  background: linear-gradient(135deg, #E10600 0%, #B00500 100%);
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-family: 'Formula1', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(225, 6, 0, 0.3);
+  text-transform: uppercase;
+}
+
+.premium-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(225, 6, 0, 0.5);
+  background: linear-gradient(135deg, #ff1a1a 0%, #cc0000 100%);
+}
+
+.premium-btn:active {
+  transform: translateY(0);
+}
+
 .page-title {
   font-size: 3rem;
   color: white;

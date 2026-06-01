@@ -24,13 +24,6 @@ const Telemetry = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [year]);
 
-  useEffect(() => {
-    if (round && driverNumber) {
-      fetchTelemetry();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [round, sessionType, driverNumber]);
-
   const fetchSchedule = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/api/schedule/${year}`);
@@ -134,8 +127,6 @@ const Telemetry = () => {
               type="number"
               value={lapNumber}
               onChange={(e) => setLapNumber(e.target.value)}
-              onBlur={fetchTelemetry}
-              onKeyDown={(e) => e.key === 'Enter' && fetchTelemetry()}
               min="1"
               style={{
                 background: 'rgba(255, 255, 255, 0.1)',
@@ -148,6 +139,9 @@ const Telemetry = () => {
               }}
             />
           </div>
+          <button onClick={fetchTelemetry} className="premium-btn">
+            Load Telemetry
+          </button>
         </div>
       </div>
 
