@@ -9,6 +9,7 @@ import Telemetry from './components/Telemetry';
 import RaceControl from './components/RaceControl';
 import CircuitInfo from './components/CircuitInfo';
 import Teams from './components/Teams';
+import Standings from './components/Standings';
 import { Menu, X } from 'lucide-react';
 import API_BASE_URL from './config/api';
 import { StatusBar, Style } from '@capacitor/status-bar';
@@ -65,6 +66,9 @@ function App() {
               </NavLink>
               <NavLink to="/teams" className="nav-link" onClick={closeMobileMenu}>
                 <span>Teams</span>
+              </NavLink>
+              <NavLink to="/standings" className="nav-link" onClick={closeMobileMenu}>
+                <span>Standings</span>
               </NavLink>
               <NavLink to="/results" className="nav-link" onClick={closeMobileMenu}>
                 <span>Results</span>
@@ -133,6 +137,7 @@ function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/schedule" element={<EventSchedule />} />
             <Route path="/teams" element={<Teams />} />
+            <Route path="/standings" element={<Standings />} />
             <Route path="/results" element={<SessionResults />} />
             <Route path="/laps" element={<LapTiming />} />
             <Route path="/telemetry" element={<Telemetry />} />

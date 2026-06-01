@@ -11,6 +11,7 @@ import pandas as pd
 from datetime import datetime, timezone
 import logging
 import os
+import requests
 
 # Create cache directory if it doesn't exist
 cache_dir = 'cache'
@@ -591,6 +592,60 @@ def get_all_drivers(year):
         
     except Exception as e:
         logger.error(f"Error fetching drivers for year {year}: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/standings/drivers/<int:year>', methods=['GET'])
+def get_driver_standings(year):
+    """
+    Get driver standings for a specific year from Jolpi API
+    """
+    try:
+        response = requests.get(f'https://api.jolpi.ca/ergast/f1/{year}/driverStandings.json', timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        standings = data.get('MRData', {}).get('StandingsTable', {}).get('StandingsLists', [])
+        
+        if not standings:
+            return jsonify({'error': 'Driver standings not found for this year'}), 404
+            
+        driver_standings = standings[0].get('DriverStandings', [])
+        return jsonify({
+            'year': year,
+            'standings': driver_standings
+        })
+    except requests.RequestException as e:
+        logger.error(f"Error fetching driver standings from Jolpi API: {str(e)}")
+        return jsonify({'error': 'Failed to fetch driver standings from upstream API'}), 502
+    except Exception as e:
+        logger.error(f"Unexpected error fetching driver standings: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/standings/constructors/<int:year>', methods=['GET'])
+def get_constructor_standings(year):
+    """
+    Get constructor standings for a specific year from Jolpi API
+    """
+    try:
+        response = requests.get(f'https://api.jolpi.ca/ergast/f1/{year}/constructorStandings.json', timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        standings = data.get('MRData', {}).get('StandingsTable', {}).get('StandingsLists', [])
+        
+        if not standings:
+            return jsonify({'error': 'Constructor standings not found for this year'}), 404
+            
+        constructor_standings = standings[0].get('ConstructorStandings', [])
+        return jsonify({
+            'year': year,
+            'standings': constructor_standings
+        })
+    except requests.RequestException as e:
+        logger.error(f"Error fetching constructor standings from Jolpi API: {str(e)}")
+        return jsonify({'error': 'Failed to fetch constructor standings from upstream API'}), 502
+    except Exception as e:
+        logger.error(f"Unexpected error fetching constructor standings: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 
