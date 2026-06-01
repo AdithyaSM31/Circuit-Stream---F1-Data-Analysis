@@ -8,10 +8,11 @@
 }
 
 .team-card {
-  background: #111111;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
   border-radius: 15px;
   overflow: hidden;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
   border: 1px solid rgba(255, 255, 255, 0.05);
   transition: all 0.3s ease;
 }
@@ -70,7 +71,7 @@
 
 .team-drivers {
   padding: 1.5rem;
-  background: rgba(21, 21, 30, 0.8);
+  background: rgba(0, 0, 0, 0.2);
 }
 
 .drivers-header {
@@ -100,7 +101,7 @@
 .driver-item:hover {
   background: rgba(225, 6, 0, 0.1);
   border-left-color: #E10600;
-  transform: translateX(5px);
+  transform: translateX(10px);
 }
 
 .driver-image {

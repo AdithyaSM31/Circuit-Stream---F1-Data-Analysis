@@ -138,8 +138,8 @@ const Standings = () => {
   };
 
   return (
-    <div className="standings-container">
-      <div className="standings-header">
+    <div className="premium-container">
+      <div className="premium-header">
         <div className="header-title">
           <Trophy size={32} color="#E10600" />
           <h1>World Championship Standings</h1>

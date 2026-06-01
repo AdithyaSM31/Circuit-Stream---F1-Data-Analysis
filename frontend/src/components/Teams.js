@@ -44,35 +44,19 @@ const Teams = () => {
     }
   };
 
-  const handleYearChange = (newYear) => {
-    setYear(newYear);
-  };
-
-  const handleFetch = () => {
-    fetchDrivers();
-  };
-
   return (
-    <div className="page-container">
-      <h2 className="page-title">
-        <Car size={32} />
-        F1 Teams & Drivers
-      </h2>
-
-      <div className="controls">
-        <div className="control-group">
-          <label>Year</label>
-          <select value={year} onChange={(e) => handleYearChange(parseInt(e.target.value))}>
+    <div className="premium-container">
+      <div className="premium-header">
+        <div className="header-title">
+          <Car size={32} color="#E10600" />
+          <h1>F1 Teams & Drivers</h1>
+        </div>
+        <div className="year-selector">
+          <select value={year} onChange={(e) => setYear(parseInt(e.target.value))}>
             {[2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018].map(y => (
               <option key={y} value={y}>{y}</option>
             ))}
           </select>
-        </div>
-        <div className="control-group">
-          <label>&nbsp;</label>
-          <button onClick={handleFetch} className="btn-primary">
-            Load Teams
-          </button>
         </div>
       </div>
 

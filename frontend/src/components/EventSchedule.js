@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { axios } from '../config/api';
 import { Calendar } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 import { getCircuitImageByCountry } from '../utils/imageMapper';
 import API_BASE_URL from '../config/api';
+import './EventSchedule.css';
 
 const EventSchedule = () => {
   const [year, setYear] = useState(new Date().getFullYear());
@@ -26,7 +28,7 @@ const EventSchedule = () => {
   useEffect(() => {
     fetchSchedule();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [year]);
 
   const formatDateWithTimezone = (dateString) => {
     if (!dateString) return '';
@@ -85,60 +87,47 @@ const EventSchedule = () => {
     <>
       {/* Circuit Image */}
       {getCircuitImageByCountry(event.country) && (
-        <div style={{ 
-          marginBottom: '1rem',
-          height: '150px',
-          overflow: 'hidden',
-          borderRadius: '10px',
-          background: 'rgba(225, 6, 0, 0.05)'
-        }}>
+        <div className="circuit-image-container">
           <img 
             src={getCircuitImageByCountry(event.country)} 
             alt={`${event.location} Circuit`}
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'contain',
-              padding: '1rem'
-            }}
+            className="circuit-image"
           />
         </div>
       )}
       
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-        <div>
-          <h3 style={{ color: '#E10600', marginBottom: '0.5rem' }}>
-            Round {event.round_number}: {event.event_name}
-          </h3>
-          <p style={{ color: '#666', fontSize: '0.95rem' }}>
-            📍 {event.location}, {event.country}
-          </p>
-          <p style={{ color: '#666', fontSize: '0.95rem' }}>
-            📅 {event.event_date}
-          </p>
-          <p style={{ color: '#666', fontSize: '0.9rem', marginTop: '0.5rem' }}>
-            Format: <strong>{event.event_format}</strong>
-          </p>
-        </div>
+      <div className="event-info-main">
+        <h3 className="event-name">
+          Round {event.round_number}: {event.event_name}
+        </h3>
+        <p className="event-location">
+          📍 {event.location}, {event.country}
+        </p>
+        <p className="event-date">
+          📅 {event.event_date}
+        </p>
+        <p className="event-format">
+          Format: <strong>{event.event_format}</strong>
+        </p>
       </div>
       
-      <div style={{ marginTop: '1rem', borderTop: '1px solid #e0e0e0', paddingTop: '1rem' }}>
-        <h4 style={{ fontSize: '0.9rem', marginBottom: '0.5rem', color: '#333' }}>Sessions:</h4>
-        <div style={{ display: 'grid', gap: '0.3rem', fontSize: '0.85rem' }}>
+      <div className="event-sessions">
+        <h4>Sessions:</h4>
+        <div className="sessions-list">
           {event.session1 && (
-            <div>🏁 {event.session1} - {formatDateWithTimezone(event.session1_date)}</div>
+            <div className="session-item">🏁 {event.session1} - {formatDateWithTimezone(event.session1_date)}</div>
           )}
           {event.session2 && (
-            <div>🏁 {event.session2} - {formatDateWithTimezone(event.session2_date)}</div>
+            <div className="session-item">🏁 {event.session2} - {formatDateWithTimezone(event.session2_date)}</div>
           )}
           {event.session3 && (
-            <div>🏁 {event.session3} - {formatDateWithTimezone(event.session3_date)}</div>
+            <div className="session-item">🏁 {event.session3} - {formatDateWithTimezone(event.session3_date)}</div>
           )}
           {event.session4 && (
-            <div>🏁 {event.session4} - {formatDateWithTimezone(event.session4_date)}</div>
+            <div className="session-item">🏁 {event.session4} - {formatDateWithTimezone(event.session4_date)}</div>
           )}
           {event.session5 && (
-            <div>🏁 {event.session5} - {formatDateWithTimezone(event.session5_date)}</div>
+            <div className="session-item">🏁 {event.session5} - {formatDateWithTimezone(event.session5_date)}</div>
           )}
         </div>
       </div>
@@ -146,26 +135,18 @@ const EventSchedule = () => {
   );
 
   return (
-    <div className="page-container">
-      <h2 className="page-title">
-        <Calendar size={32} />
-        Event Schedule
-      </h2>
-
-      <div className="controls">
-        <div className="control-group">
-          <label>Year</label>
+    <div className="premium-container">
+      <div className="premium-header">
+        <div className="header-title">
+          <Calendar size={32} color="#E10600" />
+          <h1>Event Schedule</h1>
+        </div>
+        <div className="year-selector">
           <select value={year} onChange={(e) => setYear(parseInt(e.target.value))}>
             {[2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018].map(y => (
               <option key={y} value={y}>{y}</option>
             ))}
           </select>
-        </div>
-        <div className="control-group">
-          <label>&nbsp;</label>
-          <button onClick={fetchSchedule} className="btn-primary">
-            Load Schedule
-          </button>
         </div>
       </div>
 
@@ -173,8 +154,8 @@ const EventSchedule = () => {
       {error && <div className="error">Error: {error}</div>}
 
       {schedule && (
-        <div>
-          <p style={{ marginBottom: '1rem', color: '#666' }}>
+        <div className="schedule-content">
+          <p className="total-events">
             Total Events: {schedule.total_events}
           </p>
           
@@ -185,113 +166,51 @@ const EventSchedule = () => {
               <>
                 {/* Current/Upcoming Race */}
                 {organizedEvents.current.length > 0 && (
-                  <>
-                    <h3 style={{ 
-                      color: '#E10600', 
-                      marginTop: '2rem', 
-                      marginBottom: '1rem',
-                      fontSize: '1.3rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem'
-                    }}>
+                  <div className="schedule-section">
+                    <h3 className="section-title current">
                       🔴 Current Race Week
                     </h3>
-                    <div className="data-grid">
+                    <div className="schedule-grid">
                       {organizedEvents.current.map((event, index) => (
-                        <div 
-                          key={`current-${index}`} 
-                          className="data-card" 
-                          style={{ 
-                            overflow: 'hidden',
-                            border: '3px solid #E10600',
-                            boxShadow: '0 8px 30px rgba(225, 6, 0, 0.3)',
-                            animation: 'pulse 2s infinite',
-                            background: 'linear-gradient(135deg, rgba(225, 6, 0, 0.05) 0%, rgba(255, 255, 255, 0.05) 100%)'
-                          }}
-                        >
-                          <div style={{
-                            position: 'absolute',
-                            top: '10px',
-                            right: '10px',
-                            background: '#E10600',
-                            color: 'white',
-                            padding: '0.3rem 0.8rem',
-                            borderRadius: '20px',
-                            fontSize: '0.75rem',
-                            fontWeight: 'bold'
-                          }}>
-                            RACE WEEK!
-                          </div>
+                        <div key={`current-${index}`} className="schedule-card current-race">
+                          <div className="race-badge">RACE WEEK!</div>
                           {renderEventCard(event)}
                         </div>
                       ))}
                     </div>
-                  </>
+                  </div>
                 )}
 
                 {/* Upcoming Races */}
                 {organizedEvents.upcoming.length > 0 && (
-                  <>
-                    <h3 style={{ 
-                      color: '#4CAF50', 
-                      marginTop: '2rem', 
-                      marginBottom: '1rem',
-                      fontSize: '1.2rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem'
-                    }}>
+                  <div className="schedule-section">
+                    <h3 className="section-title upcoming">
                       🟢 Upcoming Races
                     </h3>
-                    <div className="data-grid">
+                    <div className="schedule-grid">
                       {organizedEvents.upcoming.map((event, index) => (
-                        <div 
-                          key={`upcoming-${index}`} 
-                          className="data-card" 
-                          style={{ 
-                            overflow: 'hidden',
-                            border: '2px solid rgba(76, 175, 80, 0.3)'
-                          }}
-                        >
+                        <div key={`upcoming-${index}`} className="schedule-card">
                           {renderEventCard(event)}
                         </div>
                       ))}
                     </div>
-                  </>
+                  </div>
                 )}
 
                 {/* Past Races */}
                 {organizedEvents.past.length > 0 && (
-                  <>
-                    <h3 style={{ 
-                      color: '#999', 
-                      marginTop: '2rem', 
-                      marginBottom: '1rem',
-                      fontSize: '1.1rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem'
-                    }}>
+                  <div className="schedule-section">
+                    <h3 className="section-title past">
                       ⚫ Past Races
                     </h3>
-                    <div className="data-grid">
+                    <div className="schedule-grid">
                       {organizedEvents.past.map((event, index) => (
-                        <div 
-                          key={`past-${index}`} 
-                          className="data-card" 
-                          style={{ 
-                            overflow: 'hidden',
-                            opacity: 0.6,
-                            filter: 'grayscale(30%)',
-                            border: '1px solid rgba(255, 255, 255, 0.1)'
-                          }}
-                        >
+                        <div key={`past-${index}`} className="schedule-card past-race">
                           {renderEventCard(event)}
                         </div>
                       ))}
                     </div>
-                  </>
+                  </div>
                 )}
               </>
             );

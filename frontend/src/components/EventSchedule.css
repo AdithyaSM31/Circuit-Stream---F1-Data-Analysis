@@ -1,0 +1,179 @@
+/* EventSchedule.css */
+
+.schedule-content {
+  margin-top: 1rem;
+}
+
+.total-events {
+  margin-bottom: 2rem;
+  color: rgba(255, 255, 255, 0.5);
+  font-family: 'Formula1', 'Titillium Web', sans-serif;
+  letter-spacing: 1px;
+}
+
+.schedule-section {
+  margin-bottom: 3rem;
+}
+
+.section-title {
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Formula1', 'Titillium Web', sans-serif;
+  text-transform: uppercase;
+}
+
+.section-title.current {
+  color: #E10600;
+}
+
+.section-title.upcoming {
+  color: #4CAF50;
+}
+
+.section-title.past {
+  color: #999;
+}
+
+.schedule-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.schedule-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.schedule-card:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.circuit-image-container {
+  height: 140px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+}
+
+.circuit-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+}
+
+.event-info-main {
+  flex-grow: 1;
+}
+
+.event-name {
+  color: white;
+  margin: 0 0 0.5rem 0;
+  font-family: 'Formula1', 'Titillium Web', sans-serif;
+  font-size: 1.1rem;
+}
+
+.event-location, .event-date, .event-format {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.95rem;
+  margin: 0.25rem 0;
+}
+
+.event-format strong {
+  color: #E10600;
+}
+
+.event-sessions {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.event-sessions h4 {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0 0 0.5rem 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.sessions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.session-item {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Current Race Specific Styles */
+.schedule-card.current-race {
+  border: 2px solid #E10600;
+  background: linear-gradient(135deg, rgba(225, 6, 0, 0.05) 0%, rgba(21, 21, 30, 0.8) 100%);
+  box-shadow: 0 8px 30px rgba(225, 6, 0, 0.2);
+}
+
+.schedule-card.current-race:hover {
+  box-shadow: 0 12px 40px rgba(225, 6, 0, 0.4);
+}
+
+.race-badge {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: #E10600;
+  color: white;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  font-family: 'Formula1', 'Titillium Web', sans-serif;
+  letter-spacing: 1px;
+  z-index: 10;
+  box-shadow: 0 4px 10px rgba(225, 6, 0, 0.4);
+  animation: pulse 2s infinite;
+}
+
+/* Past Race Specific Styles */
+.schedule-card.past-race {
+  opacity: 0.6;
+}
+
+.schedule-card.past-race:hover {
+  opacity: 1;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(225, 6, 0, 0.7); }
+  70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(225, 6, 0, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(225, 6, 0, 0); }
+}
+
+@media (max-width: 768px) {
+  .schedule-grid {
+    grid-template-columns: 1fr;
+  }
+}
