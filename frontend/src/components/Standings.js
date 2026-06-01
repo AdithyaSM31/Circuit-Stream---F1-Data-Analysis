@@ -14,6 +14,7 @@ const Standings = () => {
 
   useEffect(() => {
     fetchStandings();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, year]);
 
   const fetchStandings = async () => {
@@ -39,7 +40,7 @@ const Standings = () => {
 
     return (
       <div className="standings-list">
-        {standingsData.map((standing, index) => {
+        {standingsData.map((standing) => {
           const driver = standing.Driver;
           const constructor = standing.Constructors[0];
           const driverCode = driver.code || driver.familyName.substring(0, 3).toUpperCase();
