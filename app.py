@@ -13,6 +13,7 @@ import logging
 import os
 import requests
 from flask_caching import Cache
+from apscheduler.schedulers.background import BackgroundScheduler
 
 # Configure Flask-Caching (15-minute default timeout)
 cache_config = {
@@ -34,6 +35,36 @@ fastf1.Cache.enable_cache(cache_dir)
 app = Flask(__name__, static_folder='frontend/build', static_url_path='/')
 app.config.from_mapping(cache_config)
 cache = Cache(app)
+
+def update_cache_background():
+    """Background job to actively pre-fetch and cache F1 data every 15 mins"""
+    logger.info("Running background cache update...")
+    
+    # Delete specific cache keys to force a fresh fetch
+    keys = [
+        'view//api/schedule/2026',
+        'view//api/drivers/2026',
+        'view//api/standings/drivers/2026',
+        'view//api/standings/constructors/2026'
+    ]
+    for key in keys:
+        cache.delete(key)
+        
+    try:
+        with app.app_context():
+            with app.test_client() as client:
+                client.get('/api/schedule/2026')
+                client.get('/api/drivers/2026')
+                client.get('/api/standings/drivers/2026')
+                client.get('/api/standings/constructors/2026')
+        logger.info("Background cache update completed successfully.")
+    except Exception as e:
+        logger.error(f"Error in background cache update: {e}")
+
+# Start the background scheduler
+scheduler = BackgroundScheduler()
+scheduler.add_job(func=update_cache_background, trigger="interval", minutes=15)
+scheduler.start()
 
 # Configure CORS for production - Allow all origins with credentials
 CORS(app, 
