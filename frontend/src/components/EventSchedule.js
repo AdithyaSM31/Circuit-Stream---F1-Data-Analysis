@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { axios } from '../config/api';
 import { Calendar } from 'lucide-react';
-import { Calendar } from 'lucide-react';
 import { getCircuitImageByCountry } from '../utils/imageMapper';
 import API_BASE_URL from '../config/api';
 import './EventSchedule.css';
