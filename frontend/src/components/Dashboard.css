@@ -456,11 +456,11 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
-  flex: 1;
+  margin-top: auto;
+  margin-bottom: auto;
 }
 
 .stat-item {
-  align-self: center;
   text-align: center;
   padding: 1.5rem;
   background: rgba(225, 6, 0, 0.1);
