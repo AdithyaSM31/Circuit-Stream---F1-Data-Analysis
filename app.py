@@ -12,6 +12,7 @@ from datetime import datetime, timezone
 import logging
 import os
 import requests
+import pytz
 from flask_caching import Cache
 from apscheduler.schedulers.background import BackgroundScheduler
 
@@ -62,7 +63,7 @@ def update_cache_background():
         logger.error(f"Error in background cache update: {e}")
 
 # Start the background scheduler
-scheduler = BackgroundScheduler()
+scheduler = BackgroundScheduler(timezone=pytz.utc)
 scheduler.add_job(func=update_cache_background, trigger="interval", minutes=15)
 scheduler.start()
 
