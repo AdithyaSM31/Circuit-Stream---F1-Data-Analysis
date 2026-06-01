@@ -96,7 +96,7 @@ const Teams = () => {
                       <img 
                         src={getDriverImage(driver.abbreviation, team.teamName, year)} 
                         alt={driver.full_name}
-                        className="driver-image"
+                        className="team-driver-avatar"
                       />
                     )}
                     <div className="driver-info">

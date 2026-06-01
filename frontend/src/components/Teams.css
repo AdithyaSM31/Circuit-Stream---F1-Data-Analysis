@@ -104,7 +104,7 @@
   transform: translateX(10px);
 }
 
-.driver-image {
+.team-driver-avatar {
   width: 60px;
   height: 60px;
   object-fit: cover;
@@ -160,7 +160,7 @@
     max-height: 100px;
   }
   
-  .driver-image {
+  .team-driver-avatar {
     width: 50px;
     height: 50px;
   }
