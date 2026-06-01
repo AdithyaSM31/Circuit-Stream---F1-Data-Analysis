@@ -7,6 +7,7 @@ export const getTeamCarImage = (teamName, year = 2026) => {
     'Aston Martin': 'astonmartin',
     'Audi': 'audi',
     'Cadillac': 'cadillac',
+    'Cadillac F1 Team': 'cadillac',
     'Ferrari': 'ferrari',
     'Haas F1 Team': 'haasf1team',
     'Kick Sauber': 'kicksauber',
@@ -14,6 +15,7 @@ export const getTeamCarImage = (teamName, year = 2026) => {
     'Mercedes': 'mercedes',
     'RB F1 Team': 'racingbulls',
     'Racing Bulls': 'racingbulls',
+    'Red Bull': 'redbullracing',
     'Red Bull Racing': 'redbullracing',
     'Williams': 'williams'
   };

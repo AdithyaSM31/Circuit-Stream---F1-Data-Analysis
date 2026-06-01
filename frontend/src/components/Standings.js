@@ -43,7 +43,8 @@ const Standings = () => {
       <div className="standings-list">
         {standingsData.map((standing) => {
           const driver = standing.Driver;
-          const constructor = standing.Constructors[0];
+          if (!driver) return null;
+          const constructor = standing.Constructors ? standing.Constructors[0] : null;
           const driverCode = driver.code || driver.familyName.substring(0, 3).toUpperCase();
           const teamName = constructor ? constructor.name : 'Unknown';
           const driverImage = getDriverImage(driverCode, teamName, year);
