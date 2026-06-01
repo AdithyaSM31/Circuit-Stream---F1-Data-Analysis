@@ -183,7 +183,7 @@
 
 .driver-image-container {
   width: 150px;
-  height: 100px;
+  height: 130px;
   display: flex;
   justify-content: center;
   align-items: flex-end;
@@ -193,7 +193,7 @@
 }
 
 .driver-image {
-  height: 120%;
+  height: 100%;
   object-fit: contain;
   object-position: bottom;
   filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));

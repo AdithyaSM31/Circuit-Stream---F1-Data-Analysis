@@ -19,6 +19,7 @@ const Standings = () => {
 
   const fetchStandings = async () => {
     setLoading(true);
+    setStandingsData([]); // Clear previous data
     setError(null);
     try {
       const endpoint = activeTab === 'drivers' 
@@ -91,6 +92,7 @@ const Standings = () => {
       <div className="standings-list">
         {standingsData.map((standing) => {
           const constructor = standing.Constructor;
+          if (!constructor) return null;
           const teamName = constructor.name;
           const carImage = getTeamCarImage(teamName, year);
 
