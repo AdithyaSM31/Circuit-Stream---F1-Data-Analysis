@@ -8,18 +8,24 @@ import './Standings.css';
 const Standings = () => {
   const [activeTab, setActiveTab] = useState('drivers'); // 'drivers' or 'constructors'
   const [year, setYear] = useState(2026);
-  const [standingsData, setStandingsData] = useState([]);
+  const [dataCache, setDataCache] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const cacheKey = `${activeTab}_${year}`;
+  const standingsData = dataCache[cacheKey] || [];
+
   useEffect(() => {
+    if (dataCache[cacheKey]) {
+      setLoading(false);
+      return; // Data already cached for this tab and year
+    }
     fetchStandings();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, year]);
 
   const fetchStandings = async () => {
     setLoading(true);
-    setStandingsData([]); // Clear previous data
     setError(null);
     try {
       const endpoint = activeTab === 'drivers' 
@@ -27,7 +33,7 @@ const Standings = () => {
         : `${API_BASE_URL}/api/standings/constructors/${year}`;
         
       const response = await axios.get(endpoint);
-      setStandingsData(response.data.standings);
+      setDataCache(prev => ({ ...prev, [cacheKey]: response.data.standings }));
     } catch (err) {
       console.error(`Error fetching ${activeTab} standings:`, err);
       setError(`Failed to load ${activeTab} standings for ${year}.`);
@@ -37,7 +43,7 @@ const Standings = () => {
   };
 
   const renderDriverStandings = () => {
-    if (standingsData.length === 0) return <div className="no-data">No driver standings available.</div>;
+    if (!loading && standingsData.length === 0) return <div className="no-data">No driver standings available.</div>;
 
     return (
       <div className="standings-list">
@@ -87,7 +93,7 @@ const Standings = () => {
   };
 
   const renderConstructorStandings = () => {
-    if (standingsData.length === 0) return <div className="no-data">No constructor standings available.</div>;
+    if (!loading && standingsData.length === 0) return <div className="no-data">No constructor standings available.</div>;
 
     return (
       <div className="standings-list">
