@@ -12,6 +12,14 @@ from datetime import datetime, timezone
 import logging
 import os
 import requests
+from flask_caching import Cache
+
+# Configure Flask-Caching (15-minute default timeout)
+cache_config = {
+    "DEBUG": False,
+    "CACHE_TYPE": "SimpleCache",
+    "CACHE_DEFAULT_TIMEOUT": 900
+}
 
 # Create cache directory if it doesn't exist
 cache_dir = 'cache'
@@ -24,6 +32,8 @@ fastf1.Cache.enable_cache(cache_dir)
 
 # Configure Flask to serve the React frontend build directory
 app = Flask(__name__, static_folder='frontend/build', static_url_path='/')
+app.config.from_mapping(cache_config)
+cache = Cache(app)
 
 # Configure CORS for production - Allow all origins with credentials
 CORS(app, 
@@ -44,6 +54,7 @@ def health_check():
 
 
 @app.route('/api/schedule/<int:year>', methods=['GET'])
+@cache.cached(timeout=900)
 def get_schedule(year):
     """
     Get event schedule for a specific year
@@ -523,6 +534,7 @@ def get_current_event():
 
 
 @app.route('/api/drivers/<int:year>', methods=['GET'])
+@cache.cached(timeout=900)
 def get_all_drivers(year):
     """
     Get all drivers for a specific year (for Teams page)
@@ -596,6 +608,7 @@ def get_all_drivers(year):
 
 
 @app.route('/api/standings/drivers/<int:year>', methods=['GET'])
+@cache.cached(timeout=900)
 def get_driver_standings(year):
     """
     Get driver standings for a specific year from Jolpi API
@@ -623,6 +636,7 @@ def get_driver_standings(year):
 
 
 @app.route('/api/standings/constructors/<int:year>', methods=['GET'])
+@cache.cached(timeout=900)
 def get_constructor_standings(year):
     """
     Get constructor standings for a specific year from Jolpi API
