@@ -243,7 +243,7 @@ const Dashboard = () => {
 
         {/* Last Race Results */}
         {lastRaceResults && (
-          <div className="dashboard-card">
+          <div className="dashboard-card featured-card">
             <div className="card-header">
               <Trophy size={24} />
               <h2>Last Race Results</h2>
