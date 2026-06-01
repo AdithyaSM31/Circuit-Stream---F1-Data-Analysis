@@ -461,6 +461,10 @@
 }
 
 .stat-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   text-align: center;
   padding: 1.5rem;
   background: rgba(225, 6, 0, 0.1);
