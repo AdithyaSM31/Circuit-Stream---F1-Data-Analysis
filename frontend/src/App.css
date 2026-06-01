@@ -447,6 +447,10 @@ h1, h2, h3, h4, h5, h6 {
   color: white;
 }
 
+.table-container thead {
+  background: transparent;
+}
+
 .table-container th {
   background: rgba(225, 6, 0, 0.1);
   color: #E10600;
