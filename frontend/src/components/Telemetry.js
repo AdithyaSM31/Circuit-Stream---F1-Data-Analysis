@@ -86,7 +86,6 @@ const Telemetry = () => {
   };
 
   return (
-  return (
     <div className="premium-container">
       <div className="premium-header">
         <div className="header-title">
