@@ -12,17 +12,6 @@ from datetime import datetime, timezone
 import logging
 import os
 import requests
-import pytz
-from flask_caching import Cache
-from apscheduler.schedulers.background import BackgroundScheduler
-
-# Configure Flask-Caching (15-minute default timeout)
-cache_config = {
-    "DEBUG": False,
-    "CACHE_TYPE": "SimpleCache",
-    "CACHE_DEFAULT_TIMEOUT": 900
-}
-
 # Create cache directory if it doesn't exist
 cache_dir = 'cache'
 if not os.path.exists(cache_dir):
@@ -34,65 +23,6 @@ fastf1.Cache.enable_cache(cache_dir)
 
 # Configure Flask to serve the React frontend build directory
 app = Flask(__name__, static_folder='frontend/build', static_url_path='/')
-app.config.from_mapping(cache_config)
-cache = Cache(app)
-
-def update_cache_background():
-    """Background job to actively pre-fetch and cache F1 data every 15 mins"""
-    logger.info("Running background cache update...")
-    
-    # Delete specific cache keys to force a fresh fetch
-    keys = [
-        'view//api/schedule/2026',
-        'view//api/drivers/2026',
-        'view//api/standings/drivers/2026',
-        'view//api/standings/constructors/2026'
-    ]
-    for key in keys:
-        cache.delete(key)
-        
-    try:
-        with app.app_context():
-            with app.test_client() as client:
-                # 1. Fetch Schedule & Standings
-                sched_resp = client.get('/api/schedule/2026')
-                client.get('/api/drivers/2026')
-                client.get('/api/standings/drivers/2026')
-                client.get('/api/standings/constructors/2026')
-                
-                # 2. Extract last race round from schedule to cache Dashboard's podium
-                if sched_resp.status_code == 200:
-                    try:
-                        import json
-                        data = json.loads(sched_resp.data)
-                        events = data.get('events', [])
-                        from datetime import datetime
-                        now = datetime.now()
-                        
-                        last_completed_round = None
-                        for event in events:
-                            race_date_str = event.get('session5_date') or event.get('session4_date') or event.get('event_date')
-                            if race_date_str:
-                                race_date = datetime.fromisoformat(race_date_str.replace('Z', '+00:00')).replace(tzinfo=None)
-                                if race_date < now:
-                                    last_completed_round = event.get('round_number')
-                                    
-                        if last_completed_round and last_completed_round > 0:
-                            # Pre-cache the last race result for the Dashboard
-                            session_url = f'/api/session/2026/{last_completed_round}/R'
-                            cache.delete(f'view/{session_url}')
-                            client.get(session_url)
-                            logger.info(f"Pre-cached last race results: Round {last_completed_round}")
-                    except Exception as e:
-                        logger.error(f"Failed to pre-cache last race results: {e}")
-        logger.info("Background cache update completed successfully.")
-    except Exception as e:
-        logger.error(f"Error in background cache update: {e}")
-
-# Start the background scheduler
-scheduler = BackgroundScheduler(timezone=pytz.utc)
-scheduler.add_job(func=update_cache_background, trigger="interval", minutes=15)
-scheduler.start()
 
 # Configure CORS for production - Allow all origins with credentials
 CORS(app, 
@@ -113,7 +43,6 @@ def health_check():
 
 
 @app.route('/api/schedule/<int:year>', methods=['GET'])
-@cache.cached(timeout=900)
 def get_schedule(year):
     """
     Get event schedule for a specific year
@@ -593,7 +522,6 @@ def get_current_event():
 
 
 @app.route('/api/drivers/<int:year>', methods=['GET'])
-@cache.cached(timeout=900)
 def get_all_drivers(year):
     """
     Get all drivers for a specific year (for Teams page)
@@ -667,7 +595,6 @@ def get_all_drivers(year):
 
 
 @app.route('/api/standings/drivers/<int:year>', methods=['GET'])
-@cache.cached(timeout=900)
 def get_driver_standings(year):
     """
     Get driver standings for a specific year from Jolpi API
@@ -695,7 +622,6 @@ def get_driver_standings(year):
 
 
 @app.route('/api/standings/constructors/<int:year>', methods=['GET'])
-@cache.cached(timeout=900)
 def get_constructor_standings(year):
     """
     Get constructor standings for a specific year from Jolpi API
