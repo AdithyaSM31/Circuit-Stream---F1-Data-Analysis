@@ -460,12 +460,14 @@ h1, h2, h3, h4, h5, h6 {
   text-align: left;
   font-size: 0.9rem;
   letter-spacing: 1px;
+  white-space: nowrap;
 }
 
 .table-container td {
   padding: 1rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   transition: background 0.2s;
+  white-space: nowrap;
 }
 
 .table-container tbody tr:hover td {
@@ -937,6 +939,21 @@ tbody tr:hover {
 
   .controls {
     flex-direction: column;
+    align-items: stretch;
+  }
+
+  .control-group {
+    width: 100%;
+  }
+
+  .control-group input,
+  .control-group select,
+  .premium-btn {
+    width: 100%;
+  }
+
+  .premium-btn {
+    margin-top: 0.5rem;
   }
 
   .main-content {
