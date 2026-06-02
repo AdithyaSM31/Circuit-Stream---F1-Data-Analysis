@@ -943,9 +943,18 @@ tbody tr:hover {
     font-size: 1.8rem;
   }
 
-  .year-selector,
-  .year-selector select {
+  .year-selector {
+    flex-direction: column !important;
+    align-items: stretch !important;
     width: 100%;
+    gap: 0.5rem !important;
+  }
+
+  .year-selector select,
+  .year-selector input,
+  .year-selector button {
+    width: 100% !important;
+    margin-bottom: 0.5rem;
   }
 
   .header-right {
