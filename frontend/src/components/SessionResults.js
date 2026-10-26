@@ -4,6 +4,7 @@ import { Trophy } from 'lucide-react';
 import { getDriverImage } from '../utils/imageMapper';
 import API_BASE_URL from '../config/api';
 import LabStandby from './LabStandby';
+import { ArchiveImage } from './ArchiveShared';
 
 const SessionResults = () => {
   const [year, setYear] = useState(new Date().getFullYear());
@@ -133,14 +134,13 @@ const SessionResults = () => {
                   </td>
                   <td>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                      {getDriverImage(driver.abbreviation, driver.team_name, year) && (
-                        <img 
-                          src={getDriverImage(driver.abbreviation, driver.team_name, year)} 
+                      <div className="session-driver-portrait" style={{ borderColor: `#${driver.team_color || 'aacbb0'}` }}>
+                        <ArchiveImage
+                          src={[2025, 2026].includes(year) ? getDriverImage(driver.abbreviation, driver.team_name, year) : null}
                           alt={driver.full_name}
-                          className="team-driver-avatar"
-                          style={{ width: '40px', height: '40px', border: `2px solid #${driver.team_color || 'E10600'}` }}
+                          fallback={driver.abbreviation}
                         />
-                      )}
+                      </div>
                       <div>
                         <strong>{driver.abbreviation}</strong>
                         <br />
