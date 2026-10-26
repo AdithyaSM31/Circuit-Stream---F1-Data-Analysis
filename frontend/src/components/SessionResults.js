@@ -42,6 +42,7 @@ const SessionResults = () => {
   };
 
   const fetchResults = async () => {
+    setResults(null);
     setLoading(true);
     setError(null);
     try {
@@ -164,7 +165,7 @@ const SessionResults = () => {
                   </td>
                   <td>{driver.grid_position || '-'}</td>
                   <td>{driver.time || driver.status}</td>
-                  <td><strong>{driver.points}</strong></td>
+                  <td><strong>{driver.points ?? '—'}</strong></td>
                 </tr>
               ))}
             </tbody>

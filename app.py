@@ -13,6 +13,7 @@ import logging
 import os
 import requests
 from telemetry_service import historical_telemetry, session_drivers, TelemetryUnavailable
+import archive_service
 # Create cache directory if it doesn't exist
 cache_dir = 'cache'
 if not os.path.exists(cache_dir):
@@ -136,9 +137,11 @@ def get_session_results(year, round_number, session_type):
     Get session results (Race, Qualifying, Practice, Sprint)
     Returns: driver names, team names, positions, points, status
     """
+    if year >= 2023:
+        return jsonify(archive_service.results(year, round_number, session_type))
     try:
         session = fastf1.get_session(year, round_number, session_type)
-        session.load()
+        session.load(laps=False, telemetry=False, weather=False, messages=False)
         
         results = session.results
         if len(results) == 0:
@@ -177,6 +180,8 @@ def get_laps(year, round_number, session_type):
     Get lap timing data
     Returns: sector times, lap times, pit stops, tyre data
     """
+    if year >= 2023:
+        return jsonify(archive_service.laps(year, round_number, session_type, request.args.get('driver')))
     try:
         driver_number = request.args.get('driver', None)
         
@@ -309,6 +314,8 @@ def get_race_control_messages(year, round_number, session_type):
     Get race control messages
     Returns: investigations, penalties, restart announcements
     """
+    if year >= 2023:
+        return jsonify(archive_service.race_control(year, round_number, session_type))
     try:
         session = fastf1.get_session(year, round_number, session_type)
         session.load()
@@ -347,73 +354,7 @@ def get_circuit_info(year, round_number):
     Get circuit information
     Returns: corner numbers, marshall sectors, track markers, lap length, event info
     """
-    try:
-        session = fastf1.get_session(year, round_number, 'R')
-        session.load()
-        
-        try:
-            circuit_info = session.get_circuit_info()
-        except fastf1.core.DataNotLoadedError:
-            return jsonify({'error': 'Circuit data is not available for this session yet.'}), 404
-        
-        # Convert rotation and corners to serializable format
-        circuit_data = {
-            'rotation': float(circuit_info.rotation) if hasattr(circuit_info, 'rotation') else None,
-            'corners': []
-        }
-        
-        if hasattr(circuit_info, 'corners') and circuit_info.corners is not None:
-            for corner in circuit_info.corners:
-                if isinstance(corner, dict):
-                    circuit_data['corners'].append(corner)
-                else:
-                    circuit_data['corners'].append({
-                        'number': str(corner) if corner else None
-                    })
-        
-        # Get event information for circuit details
-        event_info = {}
-        try:
-            event_info = {
-                'location': session.event.get('Location', 'Unknown'),
-                'country': session.event.get('Country', 'Unknown'),
-                'event_name': session.event.get('EventName', 'Unknown'),
-                'event_format': session.event.get('EventFormat', 'Unknown'),
-                'official_name': session.event.get('OfficialEventName', None),
-            }
-        except Exception as event_err:
-            logger.warning(f"Error getting event info: {str(event_err)}")
-            event_info = {
-                'location': 'Unknown',
-                'country': 'Unknown',
-                'event_name': 'Unknown',
-                'event_format': 'Unknown',
-                'official_name': None
-            }
-        
-        # Calculate lap length if lap data available
-        lap_length = None
-        try:
-            if len(session.laps) > 0 and 'Distance' in session.laps.columns:
-                # Get max distance from any lap as circuit length
-                lap_distances = session.laps['Distance'].max()
-                if pd.notna(lap_distances) and lap_distances > 0:
-                    lap_length = round(lap_distances / 1000, 3)  # Convert meters to km
-        except Exception as lap_err:
-            logger.warning(f"Could not calculate lap length: {str(lap_err)}")
-        
-        return jsonify({
-            'year': year,
-            'round': round_number,
-            'circuit_info': circuit_data,
-            'event_info': event_info,
-            'lap_length_km': lap_length
-        })
-    except Exception as e:
-        logger.error(f"Error fetching circuit info: {str(e)}")
-        import traceback
-        logger.error(traceback.format_exc())
-        return jsonify({'error': str(e)}), 500
+    return jsonify(archive_service.circuit(year, round_number))
 
 
 @app.route('/api/drivers/<int:year>/<int:round_number>/<session_type>', methods=['GET'])

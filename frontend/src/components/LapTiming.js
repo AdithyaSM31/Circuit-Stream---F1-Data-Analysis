@@ -10,6 +10,7 @@ const LapTiming = () => {
   const [sessionType, setSessionType] = useState('R');
   const [driverNumber, setDriverNumber] = useState('');
   const [laps, setLaps] = useState(null);
+  const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [schedule, setSchedule] = useState([]);
@@ -42,6 +43,7 @@ const LapTiming = () => {
   };
 
   const fetchLaps = async () => {
+    setLaps(null);
     setLoading(true);
     setError(null);
     try {
@@ -51,6 +53,7 @@ const LapTiming = () => {
       
       const response = await axios.get(url);
       setLaps(response.data);
+      setPage(0);
     } catch (err) {
       setError(err.response?.data?.error || err.message);
     } finally {
@@ -123,10 +126,15 @@ const LapTiming = () => {
       {laps && (
         <div>
           <p style={{ marginBottom: '1rem', color: '#829b86' }}>
-            Total Laps: {laps.total_laps}
+            Recorded laps: {laps.total_laps} · {laps.source || 'FastF1'}
             {laps.driver_filter && ` (Driver #${laps.driver_filter})`}
           </p>
           
+          {laps.total_laps > 100 && <div className="year-selector" style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+            <button className="premium-btn" disabled={page === 0} onClick={() => setPage(page - 1)}>Previous</button>
+            <span>Page {page + 1} of {Math.ceil(laps.total_laps / 100)}</span>
+            <button className="premium-btn" disabled={(page + 1) * 100 >= laps.total_laps} onClick={() => setPage(page + 1)}>Next</button>
+          </div>}
           <div className="table-container">
             <table>
               <thead>
@@ -140,11 +148,11 @@ const LapTiming = () => {
                   <th>Compound</th>
                   <th>Tyre Life</th>
                   <th>Stint</th>
-                  <th>PB</th>
+                  {laps.source !== 'OpenF1' && <th>PB</th>}
                 </tr>
               </thead>
               <tbody>
-                {laps.laps.map((lap, index) => (
+                {laps.laps.slice(page * 100, (page + 1) * 100).map((lap, index) => (
                   <tr key={index} className={lap.is_personal_best ? 'personal-best-row' : ''}>
                     <td><strong>{lap.lap_number}</strong></td>
                     <td>{lap.driver}</td>
@@ -170,9 +178,9 @@ const LapTiming = () => {
                         </span>
                       )}
                     </td>
-                    <td>{lap.tyre_life || '-'}</td>
+                    <td>{lap.tyre_life ?? '-'}</td>
                     <td>{lap.stint}</td>
-                    <td>{lap.is_personal_best ? '✓' : ''}</td>
+                    {laps.source !== 'OpenF1' && <td>{lap.is_personal_best ? '✓' : ''}</td>}
                   </tr>
                 ))}
               </tbody>

@@ -41,6 +41,7 @@ const RaceControl = () => {
   };
 
   const fetchMessages = async () => {
+    setMessages(null);
     setLoading(true);
     setError(null);
     try {
@@ -124,9 +125,10 @@ const RaceControl = () => {
       {messages && (
         <div>
           <p style={{ marginBottom: '1rem', color: '#829b86' }}>
-            Total Messages: {messages.total_messages}
+            Total Messages: {messages.total_messages} · {messages.source || 'FastF1'}
           </p>
 
+          {messages.total_messages === 0 && <p>No race control messages have been published for this session.</p>}
           <div className="data-grid">
             {messages.messages.map((msg, index) => (
               <div key={index} className="premium-card">
@@ -151,7 +153,7 @@ const RaceControl = () => {
                     </span>
                   </div>
                   <span style={{ color: '#829b86', fontSize: '0.9rem', fontWeight: '500' }}>
-                    {msg.time}
+                    {msg.time && `${new Date(msg.time).toLocaleTimeString('en-GB', { timeZone: 'UTC' })} UTC`}
                   </span>
                 </div>
                 <p style={{ fontSize: '1rem', lineHeight: '1.5', marginBottom: '0.5rem' }}>

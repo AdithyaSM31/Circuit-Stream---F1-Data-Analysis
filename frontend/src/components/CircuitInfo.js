@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { axios } from '../config/api';
 import { MapPin } from 'lucide-react';
-import { getCircuitImageByCountry } from '../utils/imageMapper';
+import { getCircuitImageForEvent } from '../utils/imageMapper';
 import API_BASE_URL from '../config/api';
 import LabStandby from './LabStandby';
 
@@ -41,6 +41,7 @@ const CircuitInfo = () => {
   };
 
   const fetchCircuitInfo = async () => {
+    setCircuitInfo(null);
     setLoading(true);
     setError(null);
     try {
@@ -151,7 +152,7 @@ const CircuitInfo = () => {
           )}
 
           {/* Circuit Image */}
-          {circuitInfo.event_info && getCircuitImageByCountry(circuitInfo.event_info.country) && (
+          {circuitInfo.event_info && getCircuitImageForEvent(circuitInfo.event_info) && (
             <div className="premium-card" style={{ 
               marginBottom: '2rem', 
               padding: '2rem'
@@ -160,7 +161,7 @@ const CircuitInfo = () => {
                 Circuit Layout
               </h3>
               <img 
-                src={getCircuitImageByCountry(circuitInfo.event_info.country)} 
+                src={getCircuitImageForEvent(circuitInfo.event_info)} 
                 alt={`${circuitInfo.event_info.location} Circuit`}
                 style={{
                   width: '100%',
