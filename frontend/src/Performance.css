@@ -1,0 +1,195 @@
+/* Opaque surfaces avoid repainting everything behind sticky headers and cards. */
+.modern-app .workspace-topbar {
+  background: #101114;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.is-lab .workspace-topbar {
+  background: #090e0c;
+}
+.modern-app .premium-card,
+.modern-app .data-card,
+.modern-app .schedule-card,
+.modern-app .team-card {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.command-backdrop {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: #000d;
+}
+.brand-experience .cinema-texture {
+  background-image: repeating-linear-gradient(
+    95deg,
+    #ffffff03 0px,
+    #ffffff03 1px,
+    transparent 1px,
+    transparent 5px
+  );
+  opacity: 0.3;
+}
+.brand-experience .cinema-halo {
+  filter: none;
+  background: radial-gradient(ellipse, #ff30255c, transparent 68%);
+  left: 20%;
+  top: -200px;
+  width: 60%;
+  height: 650px;
+  opacity: 1;
+}
+.brand-experience .cinema-car,
+.brand-experience .velocity-art img,
+.lab-empty-art img,
+.hero-track img {
+  filter: none;
+}
+.brand-experience .velocity-art {
+  will-change: auto;
+}
+.brand-experience .cinema-title {
+  mix-blend-mode: normal;
+}
+.brand-experience .scroll-cue svg {
+  animation-iteration-count: 3;
+}
+.modern-app .lab-art-trace {
+  animation: none;
+  stroke-dasharray: none;
+}
+.modern-app .loading-spinner {
+  animation: none;
+  border-color: #415e4b;
+  border-top-color: #bdd9b6;
+}
+.hero-skeleton {
+  animation: none;
+  background: #1b1f1c;
+}
+.modern-app .route-enter {
+  animation: none;
+}
+.brand-experience [data-reveal] {
+  transition-duration: 0.55s;
+}
+.motion-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  border: 1px solid #334b39;
+  background: transparent;
+  color: #9fbea4;
+  padding: 10px 12px;
+  width: 100%;
+  font-family: "DM Sans", sans-serif;
+  font-size: 10px;
+  margin-bottom: 16px;
+  cursor: pointer;
+}
+.motion-toggle span {
+  color: #66846d;
+  font-size: 6px;
+  letter-spacing: 1px;
+}
+.motion-toggle[aria-pressed="true"] {
+  background: #193020;
+  color: #c7dfc2;
+}
+.experience-motion {
+  width: auto;
+  margin: 0 0 0 20px;
+  border-color: #ffffff33;
+  color: #c9cac1;
+  padding: 12px;
+  font-size: 9px;
+  white-space: nowrap;
+}
+.experience-motion[aria-pressed="true"] {
+  background: #202b23;
+  color: #b9ddc6;
+}
+.experience-nav .nav-launch {
+  margin-left: 15px;
+}
+.experience-links {
+  margin-left: auto;
+}
+.motion-toggle:hover {
+  border-color: #91b99a;
+}
+html[data-effects="reduced"] *,
+html[data-effects="reduced"] *:before,
+html[data-effects="reduced"] *:after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+html[data-effects="reduced"]:has(.brand-experience) {
+  scroll-behavior: auto;
+}
+.is-experience:has(.motion-toggle[aria-pressed="true"]) .cinema-scroll {
+  height: auto;
+}
+html[data-effects="reduced"] .cinema-stage {
+  position: relative;
+}
+html[data-effects="reduced"] .cinema-car,
+html[data-effects="reduced"] .cinema-title,
+html[data-effects="reduced"] .cinema-lane,
+html[data-effects="reduced"] .velocity-art {
+  transform: none !important;
+}
+html[data-effects="reduced"] .cinema-title {
+  opacity: 1;
+}
+html[data-effects="reduced"] .brand-experience [data-reveal] {
+  opacity: 1;
+  transform: none;
+}
+@media (max-width: 1000px) {
+  .experience-motion {
+    font-size: 8px;
+    padding: 10px;
+    margin-left: 15px;
+  }
+  .experience-links {
+    gap: 18px;
+  }
+  .experience-nav .nav-launch {
+    gap: 14px;
+    padding: 12px;
+  }
+}
+@media (max-width: 650px) {
+  .experience-motion {
+    margin-left: auto;
+    margin-right: 14px;
+    font-size: 9px;
+    padding: 11px;
+  }
+  .experience-links {
+    margin-left: 0;
+  }
+  .experience-nav .nav-launch {
+    display: none;
+  }
+  .motion-toggle {
+    min-height: 38px;
+  }
+}
+.modern-app::before {
+  background-image: none;
+}
+.brand-experience .cinema-lane {
+  box-shadow: none;
+}
+.modern-app .premium-card:hover {
+  backdrop-filter: none;
+}
+.brand-experience .cinema-car img {
+  animation-duration: 0.8s;
+}
+.brand-experience .velocity-orbit {
+  transform: scaleY(0.5) rotate(-15deg);
+}

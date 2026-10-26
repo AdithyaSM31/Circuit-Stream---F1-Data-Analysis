@@ -1,223 +1,172 @@
-import React, { useState, useEffect } from 'react';
-import { axios } from '../config/api';
-import { Calendar } from 'lucide-react';
-import { getCircuitImageByCountry } from '../utils/imageMapper';
-import API_BASE_URL from '../config/api';
-import './EventSchedule.css';
-
-const EventSchedule = () => {
-  const [year, setYear] = useState(new Date().getFullYear());
-  const [schedule, setSchedule] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  const fetchSchedule = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await axios.get(`${API_BASE_URL}/api/schedule/${year}`);
-      setSchedule(response.data);
-    } catch (err) {
-      setError(err.response?.data?.error || err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchSchedule();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [year]);
-
-  const formatDateWithTimezone = (dateString) => {
-    if (!dateString) return '';
-    try {
-      const date = new Date(dateString);
-      
-      // Format directly in IST timezone (this handles date changes automatically)
-      const formattedDate = date.toLocaleString('en-IN', {
-        timeZone: 'Asia/Kolkata',
-        month: 'short', 
-        day: 'numeric', 
-        hour: '2-digit', 
-        minute: '2-digit',
-        hour12: true
-      });
-      
-      return `${formattedDate} IST`;
-    } catch {
-      return dateString;
-    }
-  };
-
-  const getRaceStatus = (event) => {
-    const now = new Date();
-    const raceDate = event.session5_date || event.session4_date || event.event_date;
-    if (!raceDate) return 'upcoming';
-    
-    const eventDate = new Date(raceDate);
-    const eventDay = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate());
-    const todayDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const daysDiff = Math.round((eventDay - todayDay) / (1000 * 60 * 60 * 24));
-    
-    if (daysDiff < 0) return 'past';
-    if (daysDiff <= 7) return 'current';
-    return 'upcoming';
-  };
-
-  const organizeEvents = (events) => {
-    if (!events) return { past: [], current: [], upcoming: [] };
-    
-    const organized = {
-      past: [],
-      current: [],
-      upcoming: []
-    };
-    
-    events.forEach(event => {
-      const status = getRaceStatus(event);
-      organized[status].push(event);
-    });
-    
-    return organized;
-  };
-
-  const renderEventCard = (event) => (
-    <>
-      {/* Circuit Image */}
-      {getCircuitImageByCountry(event.country) && (
-        <div className="circuit-image-container">
-          <img 
-            src={getCircuitImageByCountry(event.country)} 
-            alt={`${event.location} Circuit`}
-            className="circuit-image"
+import React, { useState } from "react";
+import { Search, MapPin, ChevronDown, CalendarDays } from "lucide-react";
+import { getCircuitImageForEvent } from "../utils/imageMapper";
+import { raceDate } from "../utils/weekend";
+import {
+  useArchiveData,
+  SeasonPicker,
+  ArchiveStatus,
+  ArchiveImage,
+} from "./ArchiveShared";
+import "./Paddock.css";
+const formatDate = (value) =>
+  value && Number.isFinite(new Date(value).getTime())
+    ? new Date(value).toLocaleDateString([], { day: "2-digit", month: "short" })
+    : "TBC";
+const formatSession = (value) =>
+  value && Number.isFinite(new Date(value).getTime())
+    ? new Date(value).toLocaleString([], {
+        day: "2-digit",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "Time TBC";
+export default function EventSchedule() {
+  const [year, setYear] = useState(new Date().getFullYear()),
+    [filter, setFilter] = useState("all"),
+    [query, setQuery] = useState("");
+  const { data, loading, error, retry } = useArchiveData(
+    `/api/schedule/${year}`
+  );
+  const events = (data?.events || [])
+    .filter((e) => e.round_number > 0)
+    .sort((a, b) => a.round_number - b.round_number);
+  const now = Date.now(),
+    next = events.find(
+      (e) => new Date(raceDate(e)).getTime() + 10800000 >= now
+    );
+  const status = (e) =>
+    new Date(raceDate(e)).getTime() + 10800000 < now ? "completed" : "upcoming";
+  const visible = events.filter(
+    (e) =>
+      (filter === "all" || status(e) === filter) &&
+      `${e.event_name} ${e.location} ${e.country}`
+        .toLowerCase()
+        .includes(query.toLowerCase())
+  );
+  const completed = events.filter((e) => status(e) === "completed").length;
+  return (
+    <div className="paddock-page calendar-page">
+      <div className="paddock-toolbar">
+        <SeasonPicker year={year} onChange={setYear} />
+        <div
+          className="paddock-segments"
+          role="group"
+          aria-label="Filter races"
+        >
+          {[
+            ["all", "Full season"],
+            ["upcoming", "Still to race"],
+            ["completed", "Completed"],
+          ].map(([key, label]) => (
+            <button
+              key={key}
+              aria-pressed={filter === key}
+              onClick={() => setFilter(key)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <label className="paddock-search">
+          <Search size={15} />
+          <input
+            aria-label="Search races"
+            placeholder="Find a Grand Prix"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
           />
+        </label>
+      </div>
+      {!loading && !error && (
+        <div className="paddock-season-strip">
+          <span>
+            <strong>{String(events.length).padStart(2, "0")}</strong> RACE
+            WEEKENDS
+          </span>
+          <span>
+            <strong>{String(completed).padStart(2, "0")}</strong> COMPLETED
+          </span>
+          <span className="paddock-local-time">
+            Times in {Intl.DateTimeFormat().resolvedOptions().timeZone}
+          </span>
         </div>
       )}
-      
-      <div className="event-info-main">
-        <h3 className="event-name">
-          Round {event.round_number}: {event.event_name}
-        </h3>
-        <p className="event-location">
-          📍 {event.location}, {event.country}
-        </p>
-        <p className="event-date">
-          📅 {event.event_date}
-        </p>
-        <p className="event-format">
-          Format: <strong>{event.event_format}</strong>
-        </p>
-      </div>
-      
-      <div className="event-sessions">
-        <h4>Sessions:</h4>
-        <div className="sessions-list">
-          {event.session1 && (
-            <div className="session-item">🏁 {event.session1} - {formatDateWithTimezone(event.session1_date)}</div>
-          )}
-          {event.session2 && (
-            <div className="session-item">🏁 {event.session2} - {formatDateWithTimezone(event.session2_date)}</div>
-          )}
-          {event.session3 && (
-            <div className="session-item">🏁 {event.session3} - {formatDateWithTimezone(event.session3_date)}</div>
-          )}
-          {event.session4 && (
-            <div className="session-item">🏁 {event.session4} - {formatDateWithTimezone(event.session4_date)}</div>
-          )}
-          {event.session5 && (
-            <div className="session-item">🏁 {event.session5} - {formatDateWithTimezone(event.session5_date)}</div>
-          )}
-        </div>
-      </div>
-    </>
-  );
-
-  return (
-    <div className="premium-container">
-      <div className="premium-header">
-        <div className="header-title">
-          <Calendar size={32} color="#E10600" />
-          <h1>Event Schedule</h1>
-        </div>
-        <div className="year-selector">
-          <select value={year} onChange={(e) => setYear(parseInt(e.target.value))}>
-            {[2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018].map(y => (
-              <option key={y} value={y}>{y}</option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {loading && <div className="loading">Loading schedule...</div>}
-      {error && <div className="error">Error: {error}</div>}
-
-      {schedule && (
-        <div className="schedule-content">
-          <p className="total-events">
-            Total Events: {schedule.total_events}
-          </p>
-          
-          {(() => {
-            const organizedEvents = organizeEvents(schedule.events);
-            
-            return (
-              <>
-                {/* Current/Upcoming Race */}
-                {organizedEvents.current.length > 0 && (
-                  <div className="schedule-section">
-                    <h3 className="section-title current">
-                      🔴 Current Race Week
-                    </h3>
-                    <div className="schedule-grid">
-                      {organizedEvents.current.map((event, index) => (
-                        <div key={`current-${index}`} className="schedule-card current-race">
-                          <div className="race-badge">RACE WEEK!</div>
-                          {renderEventCard(event)}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Upcoming Races */}
-                {organizedEvents.upcoming.length > 0 && (
-                  <div className="schedule-section">
-                    <h3 className="section-title upcoming">
-                      🟢 Upcoming Races
-                    </h3>
-                    <div className="schedule-grid">
-                      {organizedEvents.upcoming.map((event, index) => (
-                        <div key={`upcoming-${index}`} className="schedule-card">
-                          {renderEventCard(event)}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Past Races */}
-                {organizedEvents.past.length > 0 && (
-                  <div className="schedule-section">
-                    <h3 className="section-title past">
-                      ⚫ Past Races
-                    </h3>
-                    <div className="schedule-grid">
-                      {organizedEvents.past.map((event, index) => (
-                        <div key={`past-${index}`} className="schedule-card past-race">
-                          {renderEventCard(event)}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </>
-            );
-          })()}
+      <ArchiveStatus
+        loading={loading}
+        error={error}
+        retry={retry}
+        empty={!visible.length}
+      />
+      {!loading && !error && (
+        <div className="calendar-cards">
+          {visible.map((event) => (
+            <article
+              key={event.round_number}
+              className={`calendar-card ${event === next ? "is-next" : ""}`}
+            >
+              <div className="calendar-card-top">
+                <span>
+                  ROUND / {String(event.round_number).padStart(2, "0")}
+                </span>
+                <span className={`race-state ${status(event)}`}>
+                  {event === next
+                    ? "NEXT LIGHTS OUT"
+                    : status(event) === "completed"
+                    ? "COMPLETED"
+                    : "UPCOMING"}
+                </span>
+              </div>
+              <div className="calendar-track">
+                <ArchiveImage
+                  src={getCircuitImageByCountry(event.country)}
+                  alt={`${event.country} circuit layout`}
+                  fallback="CIRCUIT"
+                />
+                <span>{event.country.toUpperCase()}</span>
+              </div>
+              <div className="calendar-race-info">
+                <span className="paddock-kicker">{event.country}</span>
+                <h2>
+                  {event.event_name.replace(/ Grand Prix/i, "")}
+                  <span>Grand Prix</span>
+                </h2>
+                <div className="calendar-location">
+                  <MapPin size={12} />
+                  {event.location}
+                </div>
+                <div className="calendar-date">
+                  <CalendarDays size={14} />
+                  {formatDate(raceDate(event))}
+                  <span>
+                    {event.event_format?.includes("sprint")
+                      ? "SPRINT WEEKEND"
+                      : "GRAND PRIX WEEKEND"}
+                  </span>
+                </div>
+              </div>
+              <details className="calendar-agenda">
+                <summary>
+                  Weekend sessions <ChevronDown size={15} />
+                </summary>
+                <div>
+                  {[1, 2, 3, 4, 5]
+                    .filter((i) => event[`session${i}`])
+                    .map((i) => (
+                      <div className="calendar-session" key={i}>
+                        <span>{event[`session${i}`]}</span>
+                        <time dateTime={event[`session${i}_date`]}>
+                          {formatSession(event[`session${i}_date`])}
+                        </time>
+                      </div>
+                    ))}
+                </div>
+              </details>
+            </article>
+          ))}
         </div>
       )}
     </div>
   );
-};
-
-export default EventSchedule;
+}

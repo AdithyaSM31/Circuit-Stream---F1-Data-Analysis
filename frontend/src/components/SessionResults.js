@@ -3,6 +3,7 @@ import { axios } from '../config/api';
 import { Trophy } from 'lucide-react';
 import { getDriverImage } from '../utils/imageMapper';
 import API_BASE_URL from '../config/api';
+import LabStandby from './LabStandby';
 
 const SessionResults = () => {
   const [year, setYear] = useState(new Date().getFullYear());
@@ -70,12 +71,12 @@ const SessionResults = () => {
           <h1>Session Results</h1>
         </div>
         <div className="year-selector" style={{ display: 'flex', gap: '1rem' }}>
-          <select value={year} onChange={(e) => setYear(parseInt(e.target.value))}>
+          <select aria-label="Season" value={year} onChange={(e) => setYear(parseInt(e.target.value))}>
             {[2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018].map(y => (
               <option key={y} value={y}>{y}</option>
             ))}
           </select>
-          <select 
+          <select aria-label="Grand Prix"
             value={selectedEvent} 
             onChange={(e) => handleEventChange(e.target.value)}
           >
@@ -89,7 +90,7 @@ const SessionResults = () => {
               <option value="">Loading events...</option>
             )}
           </select>
-          <select value={sessionType} onChange={(e) => setSessionType(e.target.value)}>
+          <select aria-label="Session" value={sessionType} onChange={(e) => setSessionType(e.target.value)}>
             <option value="R">Race</option>
             <option value="Q">Qualifying</option>
             <option value="S">Sprint</option>
@@ -105,6 +106,8 @@ const SessionResults = () => {
 
       {loading && <div className="loading">Loading results...</div>}
       {error && <div className="error">Error: {error}</div>}
+
+      {!results && !loading && !error && <LabStandby mode="results" />}
 
       {results && (
         <div className="table-container">
@@ -140,7 +143,7 @@ const SessionResults = () => {
                       <div>
                         <strong>{driver.abbreviation}</strong>
                         <br />
-                        <small style={{ color: '#666' }}>{driver.full_name}</small>
+                        <small style={{ color: '#829b86' }}>{driver.full_name}</small>
                       </div>
                     </div>
                   </td>

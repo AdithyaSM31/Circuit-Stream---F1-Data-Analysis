@@ -3,6 +3,7 @@ import { axios } from '../config/api';
 import { MapPin } from 'lucide-react';
 import { getCircuitImageByCountry } from '../utils/imageMapper';
 import API_BASE_URL from '../config/api';
+import LabStandby from './LabStandby';
 
 const CircuitInfo = () => {
   const [year, setYear] = useState(new Date().getFullYear());
@@ -62,12 +63,12 @@ const CircuitInfo = () => {
           <h1>Circuit Information</h1>
         </div>
         <div className="year-selector" style={{ display: 'flex', gap: '1rem' }}>
-          <select value={year} onChange={(e) => setYear(parseInt(e.target.value))}>
+          <select aria-label="Season" value={year} onChange={(e) => setYear(parseInt(e.target.value))}>
             {[2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018].map(y => (
               <option key={y} value={y}>{y}</option>
             ))}
           </select>
-          <select value={selectedEvent} onChange={(e) => handleEventChange(e.target.value)}>
+          <select aria-label="Grand Prix" value={selectedEvent} onChange={(e) => handleEventChange(e.target.value)}>
             {schedule && schedule.length > 0 ? (
               schedule.map((event, index) => (
                 <option key={`${event.round_number}-${event.event_name}-${index}`} value={event.event_name}>
@@ -86,6 +87,8 @@ const CircuitInfo = () => {
 
       {loading && <div className="loading">Loading circuit information...</div>}
       {error && <div className="error">Error: {error}</div>}
+
+      {!circuitInfo && !loading && !error && <LabStandby mode="circuit" />}
 
       {circuitInfo && (
         <div>

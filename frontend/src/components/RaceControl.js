@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { axios } from '../config/api';
 import { Flag } from 'lucide-react';
 import API_BASE_URL from '../config/api';
+import LabStandby from './LabStandby';
 
 const RaceControl = () => {
   const [year, setYear] = useState(new Date().getFullYear());
@@ -85,12 +86,12 @@ const RaceControl = () => {
           <h1>Race Control Messages</h1>
         </div>
         <div className="year-selector" style={{ display: 'flex', gap: '1rem' }}>
-          <select value={year} onChange={(e) => setYear(parseInt(e.target.value))}>
+          <select aria-label="Season" value={year} onChange={(e) => setYear(parseInt(e.target.value))}>
             {[2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018].map(y => (
               <option key={y} value={y}>{y}</option>
             ))}
           </select>
-          <select value={selectedEvent} onChange={(e) => handleEventChange(e.target.value)}>
+          <select aria-label="Grand Prix" value={selectedEvent} onChange={(e) => handleEventChange(e.target.value)}>
             {schedule && schedule.length > 0 ? (
               schedule.map((event, index) => (
                 <option key={`${event.round_number}-${event.event_name}-${index}`} value={event.event_name}>
@@ -101,7 +102,7 @@ const RaceControl = () => {
               <option value="">Loading events...</option>
             )}
           </select>
-          <select value={sessionType} onChange={(e) => setSessionType(e.target.value)}>
+          <select aria-label="Session" value={sessionType} onChange={(e) => setSessionType(e.target.value)}>
             <option value="R">Race</option>
             <option value="Q">Qualifying</option>
             <option value="S">Sprint</option>
@@ -118,9 +119,11 @@ const RaceControl = () => {
       {loading && <div className="loading">Loading race control messages...</div>}
       {error && <div className="error">Error: {error}</div>}
 
+      {!messages && !loading && !error && <LabStandby mode="control" />}
+
       {messages && (
         <div>
-          <p style={{ marginBottom: '1rem', color: '#666' }}>
+          <p style={{ marginBottom: '1rem', color: '#829b86' }}>
             Total Messages: {messages.total_messages}
           </p>
 
@@ -147,7 +150,7 @@ const RaceControl = () => {
                       {msg.category || 'N/A'}
                     </span>
                   </div>
-                  <span style={{ color: '#666', fontSize: '0.9rem', fontWeight: '500' }}>
+                  <span style={{ color: '#829b86', fontSize: '0.9rem', fontWeight: '500' }}>
                     {msg.time}
                   </span>
                 </div>
@@ -155,7 +158,7 @@ const RaceControl = () => {
                   {msg.message}
                 </p>
                 {msg.scope && (
-                  <p style={{ fontSize: '0.85rem', color: '#666' }}>
+                  <p style={{ fontSize: '0.85rem', color: '#829b86' }}>
                     Scope: <strong>{msg.scope}</strong>
                     {msg.sector && ` | Sector: ${msg.sector}`}
                   </p>

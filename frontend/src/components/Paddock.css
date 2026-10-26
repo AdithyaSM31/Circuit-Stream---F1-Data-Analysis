@@ -1,0 +1,888 @@
+.paddock-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding: 18px 20px;
+  border: 1px solid #2a4030;
+  background: #101914;
+  margin-bottom: 25px;
+}
+.archive-season {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 8px;
+  letter-spacing: 1.5px;
+  color: #89a98f;
+}
+.archive-season select {
+  font-family: inherit;
+  font-size: 12px;
+  letter-spacing: 0;
+  background: #0b140e;
+  border: 1px solid #3d5b44;
+  color: #d9e8ce;
+  border-radius: 1px;
+  padding: 10px 30px 10px 12px;
+}
+.paddock-segments {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.paddock-segments button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: #7c9c84;
+  padding: 10px 12px;
+  font-family: inherit;
+  font-size: 11px;
+  border-radius: 1px;
+}
+.paddock-segments button[aria-pressed="true"] {
+  background: #233d2b;
+  border-color: #3d5b44;
+  color: #c5e0bc;
+}
+.paddock-segments button:hover {
+  color: #e2efd8;
+}
+.paddock-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  color: #85a68d;
+  min-width: 170px;
+  max-width: 280px;
+  border-bottom: 1px solid #3b5642;
+  padding: 9px 0;
+}
+.paddock-search input {
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: #d2e3c9;
+  font-family: inherit;
+  font-size: 11px;
+  min-width: 0;
+  width: 100%;
+  padding: 0;
+}
+.paddock-search input::placeholder {
+  color: #709079;
+}
+.paddock-toolbar-note {
+  font-size: 8px;
+  color: #708d78;
+  letter-spacing: 1.4px;
+  margin-left: auto;
+}
+.paddock-season-strip {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  border-bottom: 1px solid #293d2e;
+  margin-bottom: 25px;
+  padding: 0 0 19px;
+  font-size: 8px;
+  letter-spacing: 1px;
+  color: #7a9680;
+}
+.paddock-season-strip > span {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+}
+.paddock-season-strip strong {
+  font-family: "Barlow Condensed", "Arial Narrow", sans-serif;
+  font-size: 28px;
+  font-weight: 500;
+  color: #d8e4cc;
+  letter-spacing: 0;
+}
+.paddock-season-strip .paddock-local-time {
+  margin-left: auto;
+  font-size: 8px;
+  letter-spacing: 0.5px;
+}
+.archive-status {
+  min-height: 250px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 15px;
+  background: #101914;
+  border: 1px solid #2b4031;
+  margin: 24px 0;
+  padding: 30px;
+}
+.modern-app .archive-status h2 {
+  font-family: "Barlow Condensed", "Arial Narrow", sans-serif;
+  font-size: 36px;
+  font-weight: 500;
+  letter-spacing: -0.5px;
+  color: #b8cdb1;
+}
+.archive-status p {
+  font-size: 12px;
+  color: #7d9c85;
+}
+.archive-status .lab-eyebrow {
+  font-size: 7px;
+}
+.paddock-kicker {
+  font-size: 7px;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: #7b9c83;
+}
+.paddock-page h2 {
+  font-family: "Barlow Condensed", "Arial Narrow", Impact, sans-serif !important;
+}
+.paddock-source-note {
+  font-size: 10px;
+  line-height: 1.8;
+  color: #6e8b75;
+  margin-top: 18px;
+}
+.archive-image-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #5c7c65;
+  font-size: 10px;
+  letter-spacing: 2px;
+  min-height: 60px;
+}
+/* Calendar: circuit-led editorial cards, with session details on demand. */
+.calendar-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  align-items: start;
+}
+.calendar-card {
+  border: 1px solid #2c4131;
+  background: #101914;
+  min-width: 0;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 440px;
+}
+.calendar-card.is-next {
+  border-color: #779c7e;
+  background: linear-gradient(145deg, #1c3021, #101914 65%);
+}
+.calendar-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 17px 18px;
+  color: #90aa90;
+  font-size: 7px;
+  letter-spacing: 1px;
+  border-bottom: 1px solid #273d2d;
+}
+.race-state {
+  font-size: 6px;
+  letter-spacing: 0.7px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.race-state:before {
+  content: "";
+  height: 3px;
+  width: 3px;
+  border-radius: 50%;
+  background: #87b994;
+}
+.race-state.completed {
+  color: #5d7b67;
+}
+.race-state.completed:before {
+  background: #5d7b67;
+}
+.calendar-card.is-next .race-state {
+  color: #d0eac5;
+}
+.calendar-track {
+  height: 172px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 15px 25px;
+  background: radial-gradient(ellipse at 50% 50%, #243d2c40, transparent 75%);
+  border-bottom: 1px solid #273d2d;
+}
+.calendar-track img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0.8;
+}
+.calendar-track > span:not(.archive-image-fallback) {
+  position: absolute;
+  right: 13px;
+  bottom: 10px;
+  font-size: 5px;
+  letter-spacing: 2px;
+  color: #5f7b66;
+}
+.calendar-race-info {
+  padding: 20px 18px 0;
+}
+.calendar-race-info h2 {
+  font-size: 31px;
+  line-height: 1;
+  font-weight: 550;
+  letter-spacing: -0.5px;
+  margin: 12px 0;
+}
+.calendar-race-info h2 > span {
+  display: block;
+  font-size: 24px;
+  color: #789b7d;
+  margin-top: 4px;
+}
+.calendar-location {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  color: #8da792;
+  line-height: 1.6;
+}
+.calendar-date {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border-top: 1px solid #293e2f;
+  margin-top: 20px;
+  padding: 16px 0;
+  color: #c5d6bc;
+  font-size: 12px;
+}
+.calendar-date > span {
+  margin-left: auto;
+  color: #607d68;
+  font-size: 5px;
+  letter-spacing: 0.6px;
+}
+.calendar-agenda {
+  border-top: 1px solid #293e2f;
+  margin: 0 18px;
+}
+.calendar-agenda > summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  color: #98b69c;
+  font-size: 10px;
+  cursor: pointer;
+}
+.calendar-agenda > summary::-webkit-details-marker {
+  display: none;
+}
+.calendar-agenda[open] > summary svg {
+  transform: rotate(180deg);
+}
+.calendar-session {
+  border-top: 1px solid #24382a;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 10px;
+  color: #829e88;
+  padding: 12px 0;
+  line-height: 1.6;
+}
+.calendar-session time {
+  font-size: 9px;
+  color: #adc4a7;
+  text-align: right;
+}
+/* Championship: the contenders above a readable full classification. */
+.championship-podium {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 28px;
+}
+.champion-card {
+  border: 1px solid #304735;
+  background: #101914;
+  overflow: hidden;
+}
+.champion-leader {
+  background: linear-gradient(150deg, #263b27, #101914 65%);
+  border-color: #607f5d;
+}
+.champion-card-top {
+  display: flex;
+  justify-content: space-between;
+  padding: 18px 18px 0;
+  font-size: 6px;
+  letter-spacing: 1.3px;
+  color: #7d9b80;
+}
+.champion-card-top > span:last-child {
+  color: #b0c9a5;
+}
+.champion-portrait {
+  height: 180px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  margin-top: 12px;
+  overflow: hidden;
+}
+.champion-portrait img {
+  position: relative;
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
+  object-position: center bottom;
+  z-index: 1;
+}
+.champion-watermark {
+  position: absolute;
+  left: 16px;
+  bottom: -17px;
+  font-family: "Barlow Condensed", "Arial Narrow", sans-serif;
+  font-size: 190px;
+  font-weight: 700;
+  line-height: 1;
+  color: #8db29412;
+  letter-spacing: -7px;
+}
+.champion-portrait.is-car {
+  align-items: center;
+  height: 180px;
+  padding: 15px;
+}
+.champion-portrait.is-car img {
+  object-position: center;
+}
+.champion-copy {
+  padding: 20px 18px 0;
+  border-top: 1px solid #2c4131;
+  position: relative;
+}
+.champion-copy h2 {
+  font-size: 30px;
+  line-height: 1.1;
+  margin: 10px 0 20px;
+  font-weight: 550;
+  letter-spacing: -0.4px;
+  color: #dce5d0;
+}
+.champion-score {
+  border-top: 1px solid #2c4131;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 17px 0;
+}
+.champion-score > strong {
+  font-family: "Barlow Condensed", "Arial Narrow", sans-serif;
+  font-size: 37px;
+  font-weight: 500;
+  letter-spacing: -0.5px;
+  line-height: 1;
+  color: #c6ddbc;
+}
+.champion-score small {
+  font-family: "DM Sans", sans-serif;
+  font-size: 7px;
+  color: #6d8d75;
+  margin-left: 7px;
+  letter-spacing: 1px;
+}
+.champion-score > span {
+  font-size: 6px;
+  letter-spacing: 0.5px;
+  color: #829f83;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.champion-score i {
+  height: 3px;
+  width: 3px;
+  border-radius: 50%;
+  background: #46674d;
+}
+.paddock-list-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  color: #8eaa8f;
+  font-size: 7px;
+  letter-spacing: 1.6px;
+  margin: 35px 0 15px;
+}
+.paddock-list-heading > span:last-child {
+  color: #597460;
+  font-size: 6px;
+}
+.classification-scroll {
+  overflow-x: auto;
+  border: 1px solid #2c4131;
+}
+.is-lab .classification-table {
+  background: #0e1711;
+  border-radius: 0;
+  box-shadow: none;
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 530px;
+}
+.classification-table caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  clip-path: inset(50%);
+  overflow: hidden;
+}
+.is-lab .classification-table th {
+  font-size: 7px;
+  padding: 16px 20px;
+  font-family: inherit;
+  font-weight: 500;
+  color: #87a28a;
+  letter-spacing: 1px;
+  background: #15231a;
+  text-align: left;
+  border-bottom: 1px solid #2d4534;
+}
+.is-lab .classification-table td {
+  padding: 18px 20px;
+  font-size: 12px;
+  border-bottom: 1px solid #263a2b;
+  color: #b5c8ae;
+}
+.is-lab .classification-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+.is-lab .classification-table tbody tr:hover {
+  background: #a5d5a407;
+}
+.classification-position {
+  font-family: "Barlow Condensed", "Arial Narrow", sans-serif;
+  font-size: 27px;
+  color: #6f9377;
+}
+.classification-name strong {
+  font-size: 13px;
+  font-weight: 500;
+  color: #d2dfc6;
+  display: block;
+}
+.classification-name small {
+  font-size: 10px;
+  color: #67856f;
+  margin-top: 6px;
+  display: block;
+}
+.classification-points {
+  font-family: "Barlow Condensed", "Arial Narrow", sans-serif;
+  font-size: 27px;
+  font-weight: 500;
+  color: #d2e4c5;
+}
+.classification-table th:last-child,
+.classification-table td:last-child {
+  text-align: right;
+}
+.classification-gap {
+  color: #688570 !important;
+  font-size: 11px !important;
+}
+/* Teams: a car showroom with quiet team colour and a clear driver roster. */
+.grid-team-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+.grid-team-card {
+  position: relative;
+  isolation: isolate;
+  border: 1px solid #2b4131;
+  background: #101914;
+  overflow: hidden;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 470px;
+}
+.grid-team-card:before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  background: var(--team-color);
+  opacity: 0.7;
+}
+.grid-team-top {
+  padding: 22px 22px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.grid-team-marker {
+  height: 6px;
+  width: 6px;
+  background: var(--team-color);
+  border-radius: 50%;
+}
+.grid-team-card h2 {
+  font-size: 43px;
+  font-weight: 550;
+  line-height: 1;
+  letter-spacing: -0.7px;
+  margin: 15px 22px 0;
+  color: #dee7d3;
+}
+.grid-team-car {
+  height: 170px;
+  padding: 15px 10px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.grid-team-car img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.grid-driver-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #2b4131;
+  padding: 16px 22px 0;
+  font-size: 6px;
+  letter-spacing: 1.2px;
+  color: #71937a;
+}
+.grid-driver-list {
+  padding: 0 22px 10px;
+}
+.grid-driver {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px 0;
+  border-bottom: 1px solid #263b2d;
+  min-height: 84px;
+}
+.grid-driver:last-child {
+  border-bottom: 0;
+}
+.grid-driver-portrait {
+  width: 50px;
+  height: 55px;
+  background: #1c2d20;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.grid-driver-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+.grid-driver-portrait .archive-image-fallback {
+  font-size: 8px;
+  letter-spacing: 0;
+  min-height: 55px;
+}
+.grid-driver-copy {
+  min-width: 0;
+}
+.grid-driver-copy strong {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.6;
+  display: block;
+  color: #c8d9bf;
+}
+.grid-driver-copy > span {
+  font-size: 8px;
+  letter-spacing: 1.2px;
+  color: #6f8d77;
+  display: block;
+  margin-top: 5px;
+}
+.grid-driver-number {
+  margin-left: auto;
+  font-family: "Barlow Condensed", "Arial Narrow", sans-serif;
+  font-weight: 600;
+  font-size: 34px;
+  color: #56755f;
+  font-variant-numeric: tabular-nums;
+}
+.grid-team-car .archive-image-fallback {
+  font-size: 8px;
+  letter-spacing: 1.5px;
+}
+@media (min-width: 1700px) {
+  .calendar-track {
+    height: 200px;
+  }
+  .grid-team-cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .grid-team-car {
+    height: 155px;
+  }
+}
+@media (max-width: 1200px) {
+  .calendar-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .paddock-toolbar {
+    gap: 16px;
+  }
+  .paddock-toolbar-note {
+    font-size: 7px;
+  }
+  .champion-score {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .champion-copy h2 {
+    font-size: 27px;
+  }
+  .champion-portrait {
+    height: 150px;
+  }
+  .champion-portrait.is-car {
+    height: 150px;
+  }
+  .grid-team-card h2 {
+    font-size: 35px;
+  }
+  .grid-team-car {
+    height: 135px;
+  }
+  .grid-driver-copy strong {
+    font-size: 12px;
+  }
+  .paddock-season-strip {
+    gap: 20px;
+  }
+}
+@media (max-width: 650px) {
+  .paddock-toolbar {
+    padding: 15px;
+    gap: 16px;
+  }
+  .paddock-search {
+    max-width: none;
+    flex: 1;
+    min-width: 140px;
+  }
+  .calendar-page .paddock-segments {
+    order: 3;
+    width: 100%;
+    border-top: 1px solid #2a4030;
+    padding-top: 12px;
+    justify-content: space-between;
+    gap: 0;
+  }
+  .paddock-segments button {
+    padding: 9px;
+    font-size: 10px;
+  }
+  .paddock-toolbar-note {
+    display: none;
+  }
+  .paddock-season-strip {
+    gap: 15px;
+    font-size: 6px;
+    flex-wrap: wrap;
+    line-height: 1.6;
+  }
+  .paddock-season-strip strong {
+    font-size: 25px;
+  }
+  .paddock-season-strip .paddock-local-time {
+    font-size: 7px;
+  }
+  .calendar-cards {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .calendar-track {
+    height: 175px;
+  }
+  .calendar-card-top {
+    font-size: 8px;
+  }
+  .race-state {
+    font-size: 7px;
+  }
+  .calendar-race-info {
+    padding: 21px 20px 0;
+  }
+  .calendar-race-info h2 {
+    font-size: 38px;
+  }
+  .calendar-race-info h2 > span {
+    font-size: 30px;
+  }
+  .calendar-date > span {
+    font-size: 6px;
+  }
+  .calendar-agenda {
+    margin: 0 20px;
+  }
+  .calendar-agenda > summary {
+    font-size: 12px;
+    padding: 17px 0;
+  }
+  .calendar-session {
+    font-size: 11px;
+  }
+  .calendar-session time {
+    font-size: 10px;
+  }
+  .championship-podium {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  .champion-card {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    position: relative;
+  }
+  .champion-card-top {
+    grid-column: 1/-1;
+    padding: 17px 18px 0;
+    font-size: 7px;
+  }
+  .champion-portrait,
+  .champion-portrait.is-car {
+    grid-column: 2;
+    grid-row: 2;
+    margin-top: 15px;
+    align-self: end;
+    height: 180px;
+    padding: 0;
+  }
+  .champion-copy {
+    grid-column: 1;
+    grid-row: 2;
+    border: 0;
+    padding: 20px 0 0 18px;
+    align-self: center;
+  }
+  .champion-copy h2 {
+    font-size: 30px;
+    line-height: 1.05;
+    margin-bottom: 16px;
+  }
+  .champion-copy .paddock-kicker {
+    font-size: 6px;
+  }
+  .champion-score {
+    padding: 13px 0 17px;
+    gap: 10px;
+  }
+  .champion-score > strong {
+    font-size: 36px;
+  }
+  .champion-score > span {
+    font-size: 6px;
+  }
+  .champion-watermark {
+    font-size: 160px;
+    left: 0;
+    bottom: 0;
+  }
+  .champion-portrait .archive-image-fallback {
+    font-size: 15px;
+  }
+  .is-lab .classification-table th,
+  .is-lab .classification-table td {
+    padding: 15px 12px;
+  }
+  .classification-name strong {
+    font-size: 12px;
+  }
+  .classification-name small {
+    font-size: 9px;
+  }
+  .classification-position,
+  .classification-points {
+    font-size: 25px;
+  }
+  .grid-team-cards {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .grid-team-card h2 {
+    font-size: 43px;
+  }
+  .grid-team-car {
+    height: 170px;
+  }
+  .grid-driver-copy strong {
+    font-size: 13px;
+  }
+  .grid-team-top .paddock-kicker {
+    font-size: 7px;
+  }
+  .grid-driver-heading {
+    font-size: 7px;
+  }
+  .grid-driver-number {
+    font-size: 36px;
+  }
+  .grid-page .paddock-search {
+    min-width: 140px;
+  }
+  .paddock-list-heading {
+    font-size: 6px;
+    letter-spacing: 1px;
+  }
+  .archive-season {
+    font-size: 7px;
+    gap: 10px;
+  }
+  .archive-season select {
+    font-size: 12px;
+  }
+  .paddock-source-note {
+    font-size: 9px;
+  }
+}
+.champion-portrait:not(.is-car) img {
+  height: 350px;
+  max-width: none;
+  align-self: flex-start;
+  object-position: center top;
+}
+.grid-driver-portrait img {
+  height: 130px;
+  max-width: none;
+  align-self: flex-start;
+  object-position: center top;
+}

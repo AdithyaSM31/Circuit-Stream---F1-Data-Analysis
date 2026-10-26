@@ -1,120 +1,141 @@
-import React, { useState, useEffect } from 'react';
-import { axios } from '../config/api';
-import { Car, Users } from 'lucide-react';
-import { getTeamCarImage, getDriverImage } from '../utils/imageMapper';
-import API_BASE_URL from '../config/api';
-import './Teams.css';
-
-const Teams = () => {
-  const [year, setYear] = useState(new Date().getFullYear());
-  const [drivers, setDrivers] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    fetchDrivers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [year]);
-
-  const fetchDrivers = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await axios.get(`${API_BASE_URL}/api/drivers/${year}`);
-      
-      // Group drivers by team
-      const teamMap = {};
-      response.data.drivers.forEach(driver => {
-        if (!teamMap[driver.team_name]) {
-          teamMap[driver.team_name] = {
-            teamName: driver.team_name,
-            teamColor: driver.team_color,
-            drivers: []
-          };
-        }
-        teamMap[driver.team_name].drivers.push(driver);
-      });
-      
-      const teamsArray = Object.values(teamMap);
-      setDrivers(teamsArray);
-    } catch (err) {
-      setError(err.response?.data?.error || err.message);
-    } finally {
-      setLoading(false);
+import React, { useMemo, useState } from "react";
+import { Search } from "lucide-react";
+import { getTeamCarImage, getDriverImage } from "../utils/imageMapper";
+import {
+  useArchiveData,
+  SeasonPicker,
+  ArchiveStatus,
+  ArchiveImage,
+} from "./ArchiveShared";
+import "./Paddock.css";
+export default function Teams() {
+  const [year, setYear] = useState(new Date().getFullYear()),
+    [query, setQuery] = useState("");
+  const { data, loading, error, retry } = useArchiveData(
+    `/api/drivers/${year}`
+  );
+  const teams = useMemo(() => {
+    const grouped = new Map();
+    for (const driver of data?.drivers || []) {
+      const name = driver.team_name || "Independent";
+      if (!grouped.has(name))
+        grouped.set(name, {
+          name,
+          color: /^[0-9a-f]{6}$/i.test(
+            (driver.team_color || "").replace("#", "")
+          )
+            ? `#${driver.team_color.replace("#", "")}`
+            : "#91bba0",
+          drivers: [],
+        });
+      grouped.get(name).drivers.push(driver);
     }
-  };
-
+    return [...grouped.values()];
+  }, [data]);
+  const visible = teams.filter((t) =>
+    `${t.name} ${t.drivers
+      .map((d) => `${d.full_name} ${d.abbreviation} ${d.number}`)
+      .join(" ")}`
+      .toLowerCase()
+      .includes(query.toLowerCase())
+  );
   return (
-    <div className="premium-container">
-      <div className="premium-header">
-        <div className="header-title">
-          <Car size={32} color="#E10600" />
-          <h1>F1 Teams & Drivers</h1>
-        </div>
-        <div className="year-selector">
-          <select value={year} onChange={(e) => setYear(parseInt(e.target.value))}>
-            {[2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018].map(y => (
-              <option key={y} value={y}>{y}</option>
-            ))}
-          </select>
-        </div>
+    <div className="paddock-page grid-page">
+      <div className="paddock-toolbar">
+        <SeasonPicker year={year} onChange={setYear} />
+        <span className="paddock-toolbar-note">THE MACHINES. THE PEOPLE.</span>
+        <label className="paddock-search">
+          <Search size={15} />
+          <input
+            aria-label="Search teams or drivers"
+            placeholder="Find a team or driver"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </label>
       </div>
-
-      {loading && <div className="loading">Loading teams...</div>}
-      {error && <div className="error">Error: {error}</div>}
-
-      {drivers.length > 0 && (
-        <div className="teams-grid">
-          {drivers.map((team, index) => (
-            <div key={index} className="team-card">
-              <div 
-                className="team-header"
-                style={{ 
-                  borderTopColor: team.teamColor ? `#${team.teamColor}` : '#E10600' 
-                }}
-              >
-                <h3 className="team-name">{team.teamName}</h3>
-                {getTeamCarImage(team.teamName, year) && (
-                  <div className="team-car-container">
-                    <img 
-                      src={getTeamCarImage(team.teamName, year)} 
-                      alt={`${team.teamName} Car`}
-                      className="team-car-image"
-                    />
-                  </div>
-                )}
+      {!loading && !error && (
+        <div className="paddock-season-strip">
+          <span>
+            <strong>{String(teams.length).padStart(2, "0")}</strong> TEAMS
+          </span>
+          <span>
+            <strong>
+              {String(data?.drivers?.length || 0).padStart(2, "0")}
+            </strong>{" "}
+            DRIVERS
+          </span>
+          <span className="paddock-local-time">{year} / THE STARTING GRID</span>
+        </div>
+      )}
+      <ArchiveStatus
+        loading={loading}
+        error={error}
+        retry={retry}
+        empty={!visible.length}
+      />
+      {!loading && !error && (
+        <div className="grid-team-cards">
+          {visible.map((team) => (
+            <article
+              className="grid-team-card"
+              key={team.name}
+              style={{ "--team-color": team.color }}
+            >
+              <div className="grid-team-top">
+                <span className="paddock-kicker">
+                  CONSTRUCTOR /{" "}
+                  {String(teams.indexOf(team) + 1).padStart(2, "0")}
+                </span>
+                <span className="grid-team-marker" />
               </div>
-              
-              <div className="team-drivers">
-                <div className="drivers-header">
-                  <Users size={20} />
-                  <span>Drivers</span>
-                </div>
-                {team.drivers.map((driver, driverIndex) => (
-                  <div key={driverIndex} className="driver-item">
-                    {getDriverImage(driver.abbreviation, team.teamName, year) && (
-                      <img 
-                        src={getDriverImage(driver.abbreviation, team.teamName, year)} 
+              <h2>{team.name}</h2>
+              <div className="grid-team-car">
+                <ArchiveImage
+                  src={
+                    [2025, 2026].includes(year)
+                      ? getTeamCarImage(team.name, year)
+                      : null
+                  }
+                  alt={`${team.name} car`}
+                  fallback="HISTORICAL LINE-UP"
+                />
+              </div>
+              <div className="grid-driver-heading">
+                <span>THE LINE-UP</span>
+                <span>{team.drivers.length} DRIVERS</span>
+              </div>
+              <div className="grid-driver-list">
+                {team.drivers.map((driver) => (
+                  <div className="grid-driver" key={driver.number}>
+                    <div className="grid-driver-portrait">
+                      <ArchiveImage
+                        src={
+                          [2025, 2026].includes(year) &&
+                          driver.abbreviation !== "DOO"
+                            ? getDriverImage(
+                                driver.abbreviation,
+                                team.name,
+                                year
+                              )
+                            : null
+                        }
                         alt={driver.full_name}
-                        className="team-driver-avatar"
+                        fallback={driver.abbreviation}
                       />
-                    )}
-                    <div className="driver-info">
-                      <div className="driver-name">{driver.full_name}</div>
-                      <div className="driver-details">
-                        <span className="driver-code">{driver.abbreviation}</span>
-                        <span className="driver-number">#{driver.number}</span>
-                      </div>
                     </div>
+                    <div className="grid-driver-copy">
+                      <strong>{driver.full_name}</strong>
+                      <span>{driver.abbreviation}</span>
+                    </div>
+                    <span className="grid-driver-number">{driver.number}</span>
                   </div>
                 ))}
               </div>
-            </div>
+            </article>
           ))}
         </div>
       )}
     </div>
   );
-};
-
-export default Teams;
+}

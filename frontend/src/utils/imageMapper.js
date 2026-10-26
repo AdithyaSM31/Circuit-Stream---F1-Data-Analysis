@@ -162,3 +162,10 @@ export const getCircuitImageByCountry = (country) => {
   }
   return null;
 };
+export const getCircuitImageForEvent = (event) => {
+  const identity = `${event.event_name || ''} ${event.location || ''}`;
+  if (/las vegas/i.test(identity)) return '/images/circuits/Las_Vegas_Circuit.avif';
+  if (/miami/i.test(identity)) return '/images/circuits/Miami_Circuit.avif';
+  if (/emilia|imola/i.test(identity)) return '/images/circuits/Emilia_Romagna_Circuit.avif';
+  return getCircuitImageByCountry(event.country);
+};

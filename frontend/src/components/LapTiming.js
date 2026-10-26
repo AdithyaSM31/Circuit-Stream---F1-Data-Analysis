@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { axios } from '../config/api';
 import { Clock } from 'lucide-react';
 import API_BASE_URL from '../config/api';
+import LabStandby from './LabStandby';
 
 const LapTiming = () => {
   const [year, setYear] = useState(new Date().getFullYear());
@@ -65,12 +66,12 @@ const LapTiming = () => {
           <h1>Lap Timing Data</h1>
         </div>
         <div className="year-selector" style={{ display: 'flex', gap: '1rem' }}>
-          <select value={year} onChange={(e) => setYear(parseInt(e.target.value))}>
+          <select aria-label="Season" value={year} onChange={(e) => setYear(parseInt(e.target.value))}>
             {[2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018].map(y => (
               <option key={y} value={y}>{y}</option>
             ))}
           </select>
-          <select 
+          <select aria-label="Grand Prix"
             value={selectedEvent} 
             onChange={(e) => handleEventChange(e.target.value)}
           >
@@ -84,7 +85,7 @@ const LapTiming = () => {
               <option value="">Loading events...</option>
             )}
           </select>
-          <select value={sessionType} onChange={(e) => setSessionType(e.target.value)}>
+          <select aria-label="Session" value={sessionType} onChange={(e) => setSessionType(e.target.value)}>
             <option value="R">Race</option>
             <option value="Q">Qualifying</option>
             <option value="S">Sprint</option>
@@ -94,6 +95,7 @@ const LapTiming = () => {
           </select>
           <input
             type="text"
+            aria-label="Driver number (optional)"
             value={driverNumber}
             onChange={(e) => setDriverNumber(e.target.value)}
             placeholder="Driver # (e.g. 1)"
@@ -103,7 +105,7 @@ const LapTiming = () => {
               color: 'white',
               padding: '0.5rem 1rem',
               borderRadius: '8px',
-              fontFamily: 'Formula1',
+              fontFamily: 'inherit',
               width: '180px'
             }}
           />
@@ -116,9 +118,11 @@ const LapTiming = () => {
       {loading && <div className="loading">Loading lap data...</div>}
       {error && <div className="error">Error: {error}</div>}
 
+      {!laps && !loading && !error && <LabStandby mode="laps" />}
+
       {laps && (
         <div>
-          <p style={{ marginBottom: '1rem', color: '#666' }}>
+          <p style={{ marginBottom: '1rem', color: '#829b86' }}>
             Total Laps: {laps.total_laps}
             {laps.driver_filter && ` (Driver #${laps.driver_filter})`}
           </p>

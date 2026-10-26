@@ -42,3 +42,6 @@ Thumbs.db
 # Logs
 *.log
 logs/
+
+# Local dependency cache
+.npm-cache/

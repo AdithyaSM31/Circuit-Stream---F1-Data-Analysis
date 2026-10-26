@@ -238,3 +238,60 @@ For issues with:
 ---
 
 **Enjoy analyzing F1 data! 🏁**
+
+## Modern workspace UI
+
+The React frontend now includes a responsive sidebar, animated page transitions,
+keyboard page search (Ctrl/Cmd+K), an upcoming-race countdown, season progress,
+local-time session agenda, and a downloadable weekend calendar (.ics).
+Animations respect the device's reduced-motion preference. The analysis routes
+continue to use the existing Flask API.
+
+Local preview:
+
+```powershell
+cd frontend
+npm ci
+# Copy .env.example to .env.local and set your backend URL, or run Flask on port 5000.
+npm start
+```
+
+For Vercel, set the project Root Directory to `frontend`, Build Command to
+`npm run build`, and Output Directory to `build`. Set `REACT_APP_API_URL` to your
+Heroku HTTPS origin before building and redeploy after changing it. The included
+`frontend/vercel.json` enables direct navigation to React pages. The backend must
+allow your Vercel origin through its existing CORS configuration.
+
+Calendar downloads use the session timestamps returned by the API. Each calendar
+entry reserves two hours as a planning estimate, not an official session duration.
+No synthetic race results are shown when the backend is unavailable.
+
+The homepage now has a separate cinematic experience in `Experience.js` and
+`Experience.css`: a pinned red hero, layered scroll parallax, section reveals,
+a teal telemetry scene, editorial analysis links, and the existing live race
+center. Phone layouts use a compact menu and stacked sections. Reduced-motion
+settings disable parallax and animated entrances. The hero asset and generation
+prompt are recorded in `frontend/public/images/experience/ARTWORK.md`.
+
+The analysis lab shares the homepage's condensed display typography and green/teal
+palette. `LabIntro.js` provides consistent headers across the analysis tools;
+`Lab.css` styles the workspace and responsive session controls. Telemetry has
+channel tabs, computed sample summaries, a dark chart theme, explicit loading
+and failure states, and an expandable raw-sample table. Changing a session
+selection cancels pending telemetry and clears the previous lap. Summary values
+are calculated only from samples returned by the existing backend.
+
+The calendar, championship, and team roster use the same paddock design system
+(`Paddock.css`). Calendar cards include local session times and race filters;
+championship pages support driver/constructor views; team/driver search is
+available in the grid. Images load lazily and unavailable historical portraits
+use text fallbacks rather than showing a different driver's image.
+
+Rendering work has been reduced: repeated backdrop blurs, large blur filters,
+procedural SVG noise, and permanent `will-change` hints were removed. Scene
+motion runs only during scroll, only for visible scenes, at at most about 30
+updates per second. It pauses in hidden tabs. Countdown timers run only when
+visible. The Motion switch persists a static presentation preference locally;
+system reduced-motion settings remain respected. No Chrome GPU counter is read
+by the application; these changes reduce rendering work rather than promising a
+specific utilization percentage.

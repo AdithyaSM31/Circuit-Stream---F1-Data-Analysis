@@ -1,235 +1,666 @@
-import React, { useState, useEffect } from 'react';
-import { axios } from '../config/api';
-import { Activity } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import API_BASE_URL from '../config/api';
-
-const Telemetry = () => {
-  const [year, setYear] = useState(new Date().getFullYear());
-  const [round, setRound] = useState(1);
-  const [schedule, setSchedule] = useState([]);
-  const [selectedEvent, setSelectedEvent] = useState('');
-  const [drivers, setDrivers] = useState([]);
-  const [selectedDriver, setSelectedDriver] = useState('');
-  const [sessionType, setSessionType] = useState('R');
-  const [driverNumber, setDriverNumber] = useState('1');
-  const [lapNumber, setLapNumber] = useState('1');
-  const [telemetry, setTelemetry] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "react-router-dom";
+import {
+  ArrowUpRight,
+  Activity,
+  ArrowRight,
+  RefreshCw,
+  Gauge,
+  Zap,
+  SlidersHorizontal,
+  ChevronDown,
+  AlertCircle,
+} from "lucide-react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import API_BASE_URL, { axios } from "../config/api";
+import { prepareTelemetry, telemetrySummary } from "../utils/telemetry";
+const sessions = {
+  R: "Race",
+  Q: "Qualifying",
+  S: "Sprint",
+  FP1: "Practice 1",
+  FP2: "Practice 2",
+  FP3: "Practice 3",
+};
+const channels = [
+  ["speed", "Speed trace", "km/h", "#75e3c4"],
+  ["inputs", "Driver inputs", "%", "#d5e7ac"],
+  ["engine", "Powertrain", "rpm", "#a7baf3"],
+];
+const number = (value) => (value == null ? "—" : value.toLocaleString());
+function TraceTooltip({ active, payload, label, timed }) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="trace-tooltip">
+      <span>{timed ? `${label}s from first sample` : `Sample ${label}`}</span>
+      {payload.map((item) => (
+        <div key={item.dataKey}>
+          <i style={{ background: item.color }} />
+          {item.name}
+          <strong>{number(item.value)}</strong>
+        </div>
+      ))}
+    </div>
+  );
+}
+export default function Telemetry() {
+  const [selection, setSelection] = useState({
+    year: new Date().getFullYear(),
+    round: "",
+    driver: "",
+    session: "R",
+    lap: "1",
+  });
+  const [schedule, setSchedule] = useState([]),
+    [drivers, setDrivers] = useState([]);
+  const [configLoading, setConfigLoading] = useState(true),
+    [configError, setConfigError] = useState(""),
+    [retry, setRetry] = useState(0);
+  const [telemetry, setTelemetry] = useState(null),
+    [loading, setLoading] = useState(false),
+    [error, setError] = useState(""),
+    [channel, setChannel] = useState("speed");
+  const request = useRef(null);
   useEffect(() => {
-    fetchSchedule();
-    fetchDrivers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [year]);
-
-  const fetchSchedule = async () => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/api/schedule/${year}`);
-      setSchedule(response.data.events);
-      if (response.data.events.length > 0) {
-        setSelectedEvent(response.data.events[0].event_name);
-        setRound(response.data.events[0].round_number);
-      }
-    } catch (err) {
-      console.error('Error fetching schedule:', err);
-    }
+    const controller = new AbortController();
+    let active = true;
+    setConfigLoading(true);
+    setConfigError("");
+    setSchedule([]);
+    setDrivers([]);
+    Promise.allSettled([
+      axios.get(`${API_BASE_URL}/api/schedule/${selection.year}`, {
+        signal: controller.signal,
+        timeout: 45000,
+      }),
+      axios.get(`${API_BASE_URL}/api/drivers/${selection.year}`, {
+        signal: controller.signal,
+        timeout: 45000,
+      }),
+    ]).then(([races, roster]) => {
+      if (!active) return;
+      const events =
+        races.status === "fulfilled"
+          ? (races.value.data.events || []).filter((e) => e.round_number > 0)
+          : [];
+      const grid =
+        roster.status === "fulfilled" ? roster.value.data.drivers || [] : [];
+      setSchedule(events);
+      setDrivers(grid);
+      setSelection((s) => ({
+        ...s,
+        round: String(events[0]?.round_number || ""),
+        driver: String(grid[0]?.number || ""),
+      }));
+      if (!events.length || !grid.length)
+        setConfigError(
+          "The calendar or driver roster could not be loaded. Try reconnecting to the data service."
+        );
+      setConfigLoading(false);
+    });
+    return () => {
+      active = false;
+      controller.abort();
+    };
+  }, [selection.year, retry]);
+  useEffect(() => () => request.current?.abort(), []);
+  const change = (key, value) => {
+    request.current?.abort();
+    setLoading(false);
+    setTelemetry(null);
+    setError("");
+    setSelection((s) => ({ ...s, [key]: value }));
   };
-
-  const fetchDrivers = async () => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/api/drivers/${year}`);
-      setDrivers(response.data.drivers);
-      if (response.data.drivers.length > 0) {
-        setSelectedDriver(response.data.drivers[0].number);
-        setDriverNumber(response.data.drivers[0].number);
-      }
-    } catch (err) {
-      console.error('Error fetching drivers:', err);
-    }
-  };
-
-  const handleEventChange = (eventName) => {
-    setSelectedEvent(eventName);
-    const event = schedule.find(e => e.event_name === eventName);
-    if (event) {
-      setRound(event.round_number);
-    }
-  };
-
-  const handleDriverChange = (driverNum) => {
-    setSelectedDriver(driverNum);
-    setDriverNumber(driverNum);
-  };
-
-  const fetchTelemetry = async () => {
+  const selectedEvent = schedule.find(
+    (e) => String(e.round_number) === selection.round
+  );
+  const selectedDriver = drivers.find(
+    (d) => String(d.number) === selection.driver
+  );
+  const valid =
+    Number.isInteger(Number(selection.lap)) &&
+    Number(selection.lap) > 0 &&
+    selection.lap.trim() !== "";
+  const canLoad =
+    !configLoading && !!selection.round && !!selection.driver && valid;
+  const load = async (e) => {
+    e.preventDefault();
+    if (!canLoad || loading) return;
+    request.current?.abort();
+    const controller = new AbortController();
+    request.current = controller;
     setLoading(true);
-    setError(null);
+    setError("");
+    setTelemetry(null);
     try {
       const response = await axios.get(
-        `${API_BASE_URL}/api/telemetry/${year}/${round}/${sessionType}/${driverNumber}/${lapNumber}`
+        `${API_BASE_URL}/api/telemetry/${selection.year}/${selection.round}/${selection.session}/${selection.driver}/${selection.lap}`,
+        { signal: controller.signal, timeout: 90000 }
       );
+      if (controller.signal.aborted) return;
+      if (
+        !Array.isArray(response.data.telemetry) ||
+        !response.data.telemetry.length
+      )
+        throw new Error(
+          "There are no telemetry samples for this lap. Try another lap or session."
+        );
       setTelemetry(response.data);
     } catch (err) {
-      setError(err.response?.data?.error || err.message);
+      if (!controller.signal.aborted)
+        setError(
+          (/not been loaded|Session\.load/i.test(
+            err.response?.data?.error || ""
+          )
+            ? "Telemetry is not available for this session. Try another session or driver."
+            : err.response?.data?.error) ||
+            (err.code === "ECONNABORTED"
+              ? "The data service is taking longer than expected. Try again in a moment."
+              : err.message)
+        );
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) setLoading(false);
     }
   };
-
+  const prepared = useMemo(
+    () => prepareTelemetry(telemetry?.telemetry || []),
+    [telemetry]
+  );
+  const stats = useMemo(
+    () => telemetrySummary(telemetry?.telemetry || []),
+    [telemetry]
+  );
+  const selectedChannel = channels.find((c) => c[0] === channel);
   return (
-    <div className="premium-container">
-      <div className="premium-header">
-        <div className="header-title">
-          <Activity size={32} color="#E10600" />
-          <h1>Telemetry Data</h1>
+    <div className="telemetry-lab">
+      <form className="lab-session-form" onSubmit={load}>
+        <div className="lab-panel-heading">
+          <span>
+            <SlidersHorizontal size={15} /> SESSION CONFIGURATION
+          </span>
+          <small>01 / SELECT YOUR PERSPECTIVE</small>
         </div>
-        <div className="year-selector" style={{ display: 'flex', gap: '1rem' }}>
-          <select value={year} onChange={(e) => setYear(parseInt(e.target.value))}>
-            {[2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018].map(y => (
-              <option key={y} value={y}>{y}</option>
-            ))}
-          </select>
-          <select value={selectedEvent} onChange={(e) => handleEventChange(e.target.value)}>
-            {schedule && schedule.length > 0 ? (
-              schedule.map((event, index) => (
-                <option key={`${event.round_number}-${event.event_name}-${index}`} value={event.event_name}>
+        <div className="lab-fields">
+          <label>
+            SEASON
+            <select
+              value={selection.year}
+              onChange={(e) => change("year", Number(e.target.value))}
+            >
+              {Array.from(
+                { length: new Date().getFullYear() - 2017 },
+                (_, i) => new Date().getFullYear() - i
+              ).map((y) => (
+                <option key={y}>{y}</option>
+              ))}
+            </select>
+          </label>
+          <label className="field-race">
+            GRAND PRIX
+            <select
+              value={selection.round}
+              disabled={configLoading || !schedule.length}
+              onChange={(e) => change("round", e.target.value)}
+            >
+              {!schedule.length && (
+                <option value="">
+                  {configLoading ? "Loading calendar…" : "No events available"}
+                </option>
+              )}
+              {schedule.map((event) => (
+                <option key={event.round_number} value={event.round_number}>
                   {event.event_name}
                 </option>
-              ))
-            ) : (
-              <option value="">Loading events...</option>
-            )}
-          </select>
-          <select value={sessionType} onChange={(e) => setSessionType(e.target.value)}>
-            <option value="R">Race</option>
-            <option value="Q">Qualifying</option>
-            <option value="S">Sprint</option>
-            <option value="FP1">Practice 1</option>
-            <option value="FP2">Practice 2</option>
-            <option value="FP3">Practice 3</option>
-          </select>
-          <select value={selectedDriver} onChange={(e) => handleDriverChange(e.target.value)}>
-            {drivers && drivers.length > 0 ? (
-              drivers.map((driver) => (
+              ))}
+            </select>
+          </label>
+          <label>
+            SESSION
+            <select
+              value={selection.session}
+              onChange={(e) => change("session", e.target.value)}
+            >
+              {Object.entries(sessions).map(([key, label]) => (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="field-driver">
+            DRIVER
+            <select
+              value={selection.driver}
+              disabled={configLoading || !drivers.length}
+              onChange={(e) => change("driver", e.target.value)}
+            >
+              {!drivers.length && (
+                <option value="">
+                  {configLoading ? "Loading drivers…" : "No drivers available"}
+                </option>
+              )}
+              {drivers.map((driver) => (
                 <option key={driver.number} value={driver.number}>
                   {driver.full_name}
                 </option>
-              ))
-            ) : (
-              <option value="">Drivers...</option>
-            )}
-          </select>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.7)' }}>Lap:</span>
+              ))}
+            </select>
+          </label>
+          <label>
+            LAP
             <input
               type="number"
-              value={lapNumber}
-              onChange={(e) => setLapNumber(e.target.value)}
               min="1"
-              style={{
-                background: 'rgba(255, 255, 255, 0.1)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                color: 'white',
-                padding: '0.5rem',
-                borderRadius: '8px',
-                fontFamily: 'Formula1',
-                width: '60px'
-              }}
+              step="1"
+              required
+              value={selection.lap}
+              onChange={(e) => change("lap", e.target.value)}
+              aria-invalid={!valid}
             />
-          </div>
-          <button onClick={fetchTelemetry} className="premium-btn">
-            Load Telemetry
+          </label>
+          <button
+            type="submit"
+            className="lab-load-button"
+            disabled={!canLoad || loading}
+          >
+            {loading ? (
+              <>
+                <RefreshCw className="lab-spin" size={16} />
+                Loading…
+              </>
+            ) : (
+              <>
+                Load telemetry
+                <ArrowUpRight size={17} />
+              </>
+            )}
           </button>
         </div>
-      </div>
-
-      {loading && <div className="loading">Loading telemetry data...</div>}
-      {error && <div className="error">Error: {error}</div>}
-
-      {telemetry && (
-        <div>
-          <p style={{ marginBottom: '1rem', color: '#666' }}>
-            Driver #{telemetry.driver} - Lap {telemetry.lap_number} - {telemetry.data_points} data points
-          </p>
-
-          <div style={{ marginTop: '2rem' }}>
-            <h3 style={{ marginBottom: '1rem', color: '#E10600', fontFamily: 'Formula1' }}>Speed (km/h)</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={telemetry.telemetry}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="session_time" label={{ value: 'Time', position: 'insideBottom', offset: -5 }} />
-                <YAxis label={{ value: 'Speed (km/h)', angle: -90, position: 'insideLeft' }} />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="speed" stroke="#E10600" strokeWidth={2} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-
-          <div style={{ marginTop: '2rem' }}>
-            <h3 style={{ marginBottom: '1rem', color: '#64C4FF', fontFamily: 'Formula1' }}>RPM</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={telemetry.telemetry}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="session_time" label={{ value: 'Time', position: 'insideBottom', offset: -5 }} />
-                <YAxis label={{ value: 'RPM', angle: -90, position: 'insideLeft' }} />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="rpm" stroke="#64C4FF" strokeWidth={2} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-
-          <div style={{ marginTop: '2rem' }}>
-            <h3 style={{ marginBottom: '1rem', color: '#4CAF50', fontFamily: 'Formula1' }}>Throttle & Gear</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={telemetry.telemetry}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="session_time" label={{ value: 'Time', position: 'insideBottom', offset: -5 }} />
-                <YAxis yAxisId="left" label={{ value: 'Throttle %', angle: -90, position: 'insideLeft' }} />
-                <YAxis yAxisId="right" orientation="right" label={{ value: 'Gear', angle: 90, position: 'insideRight' }} />
-                <Tooltip />
-                <Legend />
-                <Line yAxisId="left" type="monotone" dataKey="throttle" stroke="#4CAF50" strokeWidth={2} dot={false} />
-                <Line yAxisId="right" type="stepAfter" dataKey="gear" stroke="#FFB800" strokeWidth={2} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-
-          <div className="table-container" style={{ marginTop: '2rem' }}>
-            <table>
-              <thead>
-                <tr>
-                  <th>Time</th>
-                  <th>Speed</th>
-                  <th>RPM</th>
-                  <th>Gear</th>
-                  <th>Throttle</th>
-                  <th>Brake</th>
-                  <th>DRS</th>
-                </tr>
-              </thead>
-              <tbody>
-                {telemetry.telemetry.slice(0, 50).map((point, index) => (
-                  <tr key={index}>
-                    <td>{point.session_time}</td>
-                    <td>{point.speed} km/h</td>
-                    <td>{point.rpm}</td>
-                    <td><strong>{point.gear}</strong></td>
-                    <td>{point.throttle}%</td>
-                    <td>{point.brake ? '🔴' : '⚪'}</td>
-                    <td>{point.drs === 1 ? '✓' : '-'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <div className="lab-form-note">
+          <span>
+            <i />
+            {configLoading
+              ? "Connecting to the session archive…"
+              : "Choose a completed session for available telemetry."}
+          </span>
+          <span>HISTORICAL SESSION DATA</span>
+        </div>
+      </form>
+      {configError && (
+        <div className="lab-notice" role="alert">
+          <AlertCircle size={18} />
+          <p>{configError}</p>
+          <button onClick={() => setRetry((r) => r + 1)}>
+            Reconnect <RefreshCw size={14} />
+          </button>
+        </div>
+      )}
+      {error && (
+        <div className="lab-notice" role="alert">
+          <AlertCircle size={18} />
+          <div>
+            <strong>A brief pit stop.</strong>
+            <p>{error}</p>
           </div>
         </div>
       )}
+      {loading && (
+        <div className="lab-loading" role="status">
+          <Activity size={28} />
+          <h2>Finding the detail.</h2>
+          <p>
+            Loading this lap from the timing archive. This can take up to a
+            minute.
+          </p>
+          <span className="loading-track">
+            <i />
+          </span>
+        </div>
+      )}
+      {!telemetry && !loading && (
+        <>
+          <section className="lab-empty">
+            <div className="lab-empty-grid" />
+            <div className="lab-empty-copy">
+              <span className="lab-eyebrow">THE MACHINE, UNDERSTOOD.</span>
+              <h2>
+                EVERY INPUT.
+                <br />
+                <span>A NEW INSIGHT.</span>
+              </h2>
+              <p>
+                Select a driver, session and lap above.
+                <br />
+                We’ll turn the timing feed into a closer look at the race.
+              </p>
+              <div className="lab-empty-steps">
+                <span>
+                  <b>01</b> Choose a session
+                </span>
+                <ArrowRight size={13} />
+                <span>
+                  <b>02</b> Reveal the lap
+                </span>
+              </div>
+            </div>
+            <div className="lab-empty-art">
+              <span className="lab-ghost-word" aria-hidden="true">
+                TELEMETRY
+              </span>
+              <img
+                src="/images/cars/2026mercedescarright.avif"
+                alt="Mercedes Formula 1 car in profile"
+              />
+              <span className="lab-art-caption">SPEED / CONTROL / POWER</span>
+            </div>
+            <div className="lab-empty-bottom">
+              <span>YOUR NEXT INSIGHT STARTS HERE.</span>
+              <span>NO LAP LOADED</span>
+            </div>
+          </section>
+          <div className="lab-channel-preview">
+            {[
+              [
+                Gauge,
+                "01",
+                "Speed & precision",
+                "Follow the speed trace through every phase of a lap.",
+              ],
+              [
+                SlidersHorizontal,
+                "02",
+                "The driver’s decisions",
+                "Throttle and brake inputs. Commitment, made visible.",
+              ],
+              [
+                Zap,
+                "03",
+                "Power, delivered",
+                "RPM and gear changes. Inside the rhythm of the machine.",
+              ],
+            ].map(([Icon, n, title, copy]) => (
+              <div key={n}>
+                <span>
+                  <Icon size={18} />
+                  <small>/{n}</small>
+                </span>
+                <h3>{title}</h3>
+                <p>{copy}</p>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+      {telemetry && (
+        <section className="lab-results">
+          <div className="lab-result-heading">
+            <div>
+              <span className="lab-eyebrow">02 / THE LAP, REVEALED</span>
+              <h2>
+                {selectedDriver?.full_name || `Driver ${telemetry.driver}`}
+                <span> / LAP {telemetry.lap_number}</span>
+              </h2>
+              <p>
+                {selectedEvent?.event_name} · {selection.year} ·{" "}
+                {sessions[selection.session]}
+              </p>
+            </div>
+            <span className="lab-samples">
+              <i />
+              {prepared.points.length} SAMPLES
+            </span>
+          </div>
+          <div className="lab-metrics">
+            {[
+              [stats.maxSpeed, "km/h", "PEAK SPEED"],
+              [stats.averageThrottle, "%", "MEAN THROTTLE"],
+              [stats.maxRpm, "rpm", "PEAK RPM"],
+              [stats.maxGear, "", "HIGHEST GEAR"],
+            ].map(([value, unit, label]) => (
+              <div key={label}>
+                <span>{label}</span>
+                <strong>
+                  {number(value)}
+                  <small>{unit}</small>
+                </strong>
+              </div>
+            ))}
+          </div>
+          <div className="lab-chart-panel">
+            <div className="lab-chart-top">
+              <div role="tablist" aria-label="Telemetry channel">
+                {channels.map(([key, label]) => (
+                  <button
+                    id={`channel-${key}`}
+                    role="tab"
+                    aria-selected={key === channel}
+                    aria-controls="telemetry-trace"
+                    key={key}
+                    className={key === channel ? "active" : ""}
+                    onClick={() => setChannel(key)}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <span>TRACE / {selectedChannel[2]}</span>
+            </div>
+            <div
+              id="telemetry-trace"
+              role="tabpanel"
+              aria-labelledby={`channel-${channel}`}
+            >
+              <div className="lab-chart-legend">
+                {(channel === "speed"
+                  ? [["Speed", "#75e3c4"]]
+                  : channel === "inputs"
+                  ? [
+                      ["Throttle", "#d5e7ac"],
+                      ["Brake", "#ed967e"],
+                    ]
+                  : [
+                      ["RPM", "#a7baf3"],
+                      ["Gear", "#e0bd7f"],
+                    ]
+                ).map(([label, color]) => (
+                  <span key={label}>
+                    <i style={{ background: color }} />
+                    {label}
+                  </span>
+                ))}
+              </div>
+              <div className="lab-trace">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart
+                    data={prepared.points}
+                    margin={{
+                      top: 10,
+                      right: channel === "engine" ? 8 : 20,
+                      bottom: 12,
+                      left: 0,
+                    }}
+                  >
+                    <CartesianGrid
+                      stroke="#273a34"
+                      strokeDasharray="3 7"
+                      vertical={false}
+                    />
+                    <XAxis
+                      dataKey="axis"
+                      type="number"
+                      domain={["dataMin", "dataMax"]}
+                      tick={{ fill: "#81968b", fontSize: 10 }}
+                      tickLine={false}
+                      axisLine={{ stroke: "#33443c" }}
+                      tickFormatter={(v) => Math.round(v)}
+                    />
+                    <YAxis
+                      yAxisId="left"
+                      width={52}
+                      domain={
+                        channel === "inputs" ? [0, 100] : ["auto", "auto"]
+                      }
+                      tick={{ fill: "#81968b", fontSize: 10 }}
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    {channel === "engine" && (
+                      <YAxis
+                        yAxisId="right"
+                        orientation="right"
+                        width={30}
+                        domain={[0, 8]}
+                        tick={{ fill: "#c2ae83", fontSize: 10 }}
+                        tickLine={false}
+                        axisLine={false}
+                      />
+                    )}
+                    <Tooltip
+                      content={<TraceTooltip timed={prepared.timed} />}
+                    />
+                    {channel === "speed" && (
+                      <Line
+                        yAxisId="left"
+                        dataKey="speed"
+                        name="Speed (km/h)"
+                        stroke="#75e3c4"
+                        strokeWidth={2}
+                        dot={false}
+                        isAnimationActive={false}
+                      />
+                    )}{" "}
+                    {channel === "inputs" && (
+                      <>
+                        <Line
+                          yAxisId="left"
+                          dataKey="throttle"
+                          name="Throttle (%)"
+                          stroke="#d5e7ac"
+                          strokeWidth={2}
+                          dot={false}
+                          isAnimationActive={false}
+                        />
+                        <Line
+                          yAxisId="left"
+                          dataKey="brake_input"
+                          name="Brake (on = 100)"
+                          type="stepAfter"
+                          stroke="#ed967e"
+                          strokeWidth={1.5}
+                          dot={false}
+                          isAnimationActive={false}
+                        />
+                      </>
+                    )}
+                    {channel === "engine" && (
+                      <>
+                        <Line
+                          yAxisId="left"
+                          dataKey="rpm"
+                          name="RPM"
+                          stroke="#a7baf3"
+                          strokeWidth={2}
+                          dot={false}
+                          isAnimationActive={false}
+                        />
+                        <Line
+                          yAxisId="right"
+                          dataKey="gear"
+                          name="Gear"
+                          type="stepAfter"
+                          stroke="#e0bd7f"
+                          strokeWidth={1.5}
+                          dot={false}
+                          isAnimationActive={false}
+                        />
+                      </>
+                    )}
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="lab-chart-foot">
+                <span>
+                  {prepared.timed
+                    ? "TIME FROM FIRST SAMPLE (SECONDS)"
+                    : "SAMPLE NUMBER"}
+                </span>
+                <span>
+                  {channel === "engine"
+                    ? "RPM · LEFT AXIS / GEAR · RIGHT AXIS"
+                    : "FASTF1 / SAMPLED CAR DATA"}
+                </span>
+              </div>
+            </div>
+          </div>
+          <details className="lab-raw-data">
+            <summary>
+              Behind the trace{" "}
+              <span>
+                FIRST {Math.min(50, prepared.points.length)} SAMPLES{" "}
+                <ChevronDown size={16} />
+              </span>
+            </summary>
+            <div className="table-container">
+              <table>
+                <caption>
+                  Raw timing-feed values. DRS is shown as the source code.
+                </caption>
+                <thead>
+                  <tr>
+                    {[
+                      "Session time",
+                      "Speed · km/h",
+                      "RPM",
+                      "Gear",
+                      "Throttle · %",
+                      "Brake",
+                      "DRS code",
+                    ].map((h) => (
+                      <th key={h}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {prepared.points.slice(0, 50).map((point, i) => (
+                    <tr key={i}>
+                      <td>{point.session_time || "—"}</td>
+                      <td>{number(point.speed)}</td>
+                      <td>{number(point.rpm)}</td>
+                      <td>{number(point.gear)}</td>
+                      <td>{number(point.throttle)}</td>
+                      <td>{point.brake ? "On" : "Off"}</td>
+                      <td>{point.drs ?? "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </details>
+          <p className="lab-data-note">
+            Summary values use the returned samples. The timing feed is sampled
+            by the data service.
+          </p>
+        </section>
+      )}
+      <div className="lab-next">
+        <span>KEEP EXPLORING</span>
+        <Link to="/laps">
+          Chase the thousandth.
+          <ArrowUpRight size={18} />
+        </Link>
+        <Link to="/results">
+          See the full story.
+          <ArrowUpRight size={18} />
+        </Link>
+      </div>
     </div>
   );
-};
-
-export default Telemetry;
+}
