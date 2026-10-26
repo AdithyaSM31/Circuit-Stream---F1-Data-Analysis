@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { ArrowUpRight, ArrowDown, Activity, Menu, X } from "lucide-react";
+import { ArrowUpRight, ArrowDown, Menu, X } from "lucide-react";
 import "./Experience.css";
 import { attachSceneMotion } from "../utils/sceneMotion";
 
@@ -45,7 +45,7 @@ export default function Experience({
           className="experience-logo"
           aria-label="Circuit Stream home"
         >
-          <Activity size={28} />
+          <img src="/brand/circuit-stream-mark.svg" alt="" width="40" height="40" />
           <span>
             CIRCUIT
             <br />

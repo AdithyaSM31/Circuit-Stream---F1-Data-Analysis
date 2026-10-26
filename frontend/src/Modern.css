@@ -672,3 +672,12 @@ button:disabled {
 .modern-app .workspace-brand {
   flex-shrink: 0;
 }
+
+/* Circuit Stream identity: a crisp, static mark at every size. */
+.modern-app .workspace-brand .brand-symbol {
+  background: transparent;
+  transform: none;
+  flex: 0 0 36px;
+}
+.brand-symbol img { display: block; width: 36px; height: 36px; }
+.experience-logo > img { display: block; width: 40px; height: 40px; flex-shrink: 0; }

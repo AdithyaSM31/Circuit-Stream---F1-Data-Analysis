@@ -152,7 +152,7 @@ function Workspace() {
       <aside className={`workspace-sidebar ${menu ? "is-open" : ""}`}>
         <NavLink to="/" className="workspace-brand">
           <span className="brand-symbol">
-            <Activity size={25} />
+            <img src="/brand/circuit-stream-mark.svg" alt="" width="36" height="36" />
           </span>
           <span>
             CIRCUIT<span className="brand-light">STREAM</span>
