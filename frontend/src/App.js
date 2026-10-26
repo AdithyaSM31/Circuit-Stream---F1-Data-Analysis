@@ -34,8 +34,6 @@ import CircuitInfo from "./components/CircuitInfo";
 import Teams from "./components/Teams";
 import Standings from "./components/Standings";
 import API_BASE_URL from "./config/api";
-import { StatusBar, Style } from "@capacitor/status-bar";
-import { Capacitor } from "@capacitor/core";
 import "./App.css";
 import "./Modern.css";
 import "./Lab.css";
@@ -85,11 +83,6 @@ function Workspace() {
     title.toLowerCase().includes(query.toLowerCase())
   );
   useEffect(() => {
-    if (Capacitor.isNativePlatform()) {
-      StatusBar.setStyle({ style: Style.Dark });
-      StatusBar.setBackgroundColor({ color: "#101114" });
-      StatusBar.setOverlaysWebView({ overlay: false });
-    }
     const controller = new AbortController();
     fetch(`${API_BASE_URL}/api/health`, { signal: controller.signal })
       .then((res) => {
@@ -229,6 +222,7 @@ function Workspace() {
           <button
             ref={trigger}
             className="workspace-search"
+            aria-label="Jump to a page"
             onClick={() => setSearch(true)}
           >
             <Search size={16} />

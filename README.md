@@ -303,3 +303,7 @@ driver codes resolve number changes (for example, VER is 3 and NOR is 1 in the
 2026 Miami race). Responses include the actual source and driver identity.
 Pre-2023 telemetry continues to use FastF1. No Formula 1 account credentials are
 collected or embedded in the app. Backend tests: `python -m unittest discover -s tests -v`.
+
+## Android v2.0.0
+
+The Android app now uses Kotlin with a bundled WebView interface matching the mobile website. Build and signing instructions are in [the Android README](frontend/android/README.md).

@@ -1,15 +1,12 @@
 {
   "name": "f1-data-analysis-frontend",
-  "version": "1.3.4",
+  "version": "2.0.0",
   "description": "Real-time F1 Data Analysis Frontend",
   "private": true,
   "dependencies": {
-    "@capacitor/android": "^7.4.4",
-    "@capacitor/cli": "^7.4.4",
-    "@capacitor/core": "^7.4.4",
-    "@capacitor/status-bar": "^7.0.3",
     "axios": "^1.13.5",
     "axios-cache-interceptor": "^1.11.4",
+    "f1-project": "file:..",
     "lucide-react": "^0.294.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -22,7 +19,10 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "prebuild": "eslint src --ext .js --no-cache"
+    "prebuild": "eslint src --ext .js --no-cache",
+    "android:prepare": "node scripts/prepare-android.cjs",
+    "android:debug": "npm run android:prepare && node scripts/run-android-gradle.cjs assembleDebug",
+    "android:release": "npm run android:prepare && node scripts/run-android-gradle.cjs assembleRelease bundleRelease"
   },
   "eslintConfig": {
     "extends": [
@@ -40,9 +40,6 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "@capacitor/assets": "^3.0.5"
   },
   "engines": {
     "node": "22.x"
