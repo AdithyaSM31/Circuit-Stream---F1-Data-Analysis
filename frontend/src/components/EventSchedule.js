@@ -120,7 +120,7 @@ export default function EventSchedule() {
               </div>
               <div className="calendar-track">
                 <ArchiveImage
-                  src={getCircuitImageByCountry(event.country)}
+                  src={getCircuitImageForEvent(event)}
                   alt={`${event.country} circuit layout`}
                   fallback="CIRCUIT"
                 />
