@@ -42,5 +42,8 @@
   },
   "devDependencies": {
     "@capacitor/assets": "^3.0.5"
+  },
+  "engines": {
+    "node": "22.x"
   }
 }
