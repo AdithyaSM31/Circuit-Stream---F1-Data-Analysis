@@ -91,7 +91,7 @@ export default function LabIntro({ path }) {
       </div>
       <div className="lab-intro-bottom">
         <span>{label}</span>
-        <span>FASTF1 / SESSION ARCHIVE</span>
+        <span>F1 DATA / SESSION ARCHIVE</span>
       </div>
     </header>
   );

@@ -112,8 +112,59 @@ it("shows a useful unavailable-session message without exposing backend internal
     Simulate.submit(container.querySelector("form"));
   });
   expect(container.querySelector('[role="alert"]').textContent).toContain(
-    "Try another session or driver"
+    "Please try again"
   );
   expect(container.textContent).not.toContain("Session.load");
   expect(container.querySelector('button[type="submit"]').disabled).toBe(false);
+});
+it("uses the selected session roster and sends the driver code with telemetry requests", async () => {
+  const roster = [
+    { number: "1", abbreviation: "NOR", full_name: "Lando Norris" },
+    { number: "3", abbreviation: "VER", full_name: "Max Verstappen" },
+  ];
+  axios.get.mockImplementation((url) =>
+    Promise.resolve({
+      data: url.includes("/schedule/")
+        ? { events: [{ round_number: 4, event_name: "Miami Grand Prix" }] }
+        : url.includes("/drivers/")
+        ? { drivers: roster }
+        : {
+            driver: "3",
+            driver_code: "VER",
+            driver_name: "Max Verstappen",
+            lap_number: 1,
+            telemetry: samples,
+            source: "OpenF1",
+          },
+    })
+  );
+  await renderLab();
+  act(() =>
+    Simulate.change(container.querySelectorAll("select")[3], {
+      target: { value: "3" },
+    })
+  );
+  await act(async () =>
+    Simulate.change(container.querySelectorAll("select")[2], {
+      target: { value: "Q" },
+    })
+  );
+  expect(
+    axios.get.mock.calls.some(([url]) =>
+      url.endsWith("/drivers/" + new Date().getFullYear() + "/4/Q")
+    )
+  ).toBe(true);
+  expect(container.querySelectorAll("select")[3].value).toBe("3");
+  await act(async () => Simulate.submit(container.querySelector("form")));
+  const request = axios.get.mock.calls.find(([url]) =>
+    url.includes("/api/telemetry/")
+  );
+  expect(request[0]).toContain("/4/Q/3/1");
+  expect(request[1].params).toEqual({ driver_code: "VER" });
+  expect(container.querySelector(".lab-result-heading").textContent).toContain(
+    "Max Verstappen"
+  );
+  expect(container.querySelector(".lab-data-note").textContent).toContain(
+    "OpenF1"
+  );
 });

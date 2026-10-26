@@ -290,7 +290,7 @@ function Workspace() {
             CIRCUIT STREAM <span className="footer-dot">/</span> Independent F1
             analysis
           </span>
-          <span>Powered by FastF1</span>
+          <span>FastF1 + OpenF1</span>
         </footer>
       </div>
       {search && (

@@ -61,9 +61,14 @@ export default function Telemetry() {
   });
   const [schedule, setSchedule] = useState([]),
     [drivers, setDrivers] = useState([]);
-  const [configLoading, setConfigLoading] = useState(true),
-    [configError, setConfigError] = useState(""),
-    [retry, setRetry] = useState(0);
+  const [calendarLoading, setCalendarLoading] = useState(true);
+  const [rosterLoading, setRosterLoading] = useState(true);
+  const [calendarError, setCalendarError] = useState("");
+  const [rosterError, setRosterError] = useState("");
+  const [retry, setRetry] = useState(0);
+  const configLoading = calendarLoading || rosterLoading;
+  const configError = calendarError || rosterError;
+  const preferredDriver = useRef("");
   const [telemetry, setTelemetry] = useState(null),
     [loading, setLoading] = useState(false),
     [error, setError] = useState(""),
@@ -71,53 +76,101 @@ export default function Telemetry() {
   const request = useRef(null);
   useEffect(() => {
     const controller = new AbortController();
-    let active = true;
-    setConfigLoading(true);
-    setConfigError("");
+    setCalendarLoading(true);
+    setCalendarError("");
     setSchedule([]);
-    setDrivers([]);
-    Promise.allSettled([
-      axios.get(`${API_BASE_URL}/api/schedule/${selection.year}`, {
+    setSelection((value) => ({ ...value, round: "", driver: "" }));
+    axios
+      .get(`${API_BASE_URL}/api/schedule/${selection.year}`, {
         signal: controller.signal,
         timeout: 45000,
-      }),
-      axios.get(`${API_BASE_URL}/api/drivers/${selection.year}`, {
-        signal: controller.signal,
-        timeout: 45000,
-      }),
-    ]).then(([races, roster]) => {
-      if (!active) return;
-      const events =
-        races.status === "fulfilled"
-          ? (races.value.data.events || []).filter((e) => e.round_number > 0)
-          : [];
-      const grid =
-        roster.status === "fulfilled" ? roster.value.data.drivers || [] : [];
-      setSchedule(events);
-      setDrivers(grid);
-      setSelection((s) => ({
-        ...s,
-        round: String(events[0]?.round_number || ""),
-        driver: String(grid[0]?.number || ""),
-      }));
-      if (!events.length || !grid.length)
-        setConfigError(
-          "The calendar or driver roster could not be loaded. Try reconnecting to the data service."
+      })
+      .then((response) => {
+        if (controller.signal.aborted) return;
+        const events = (response.data.events || []).filter(
+          (event) => event.round_number > 0
         );
-      setConfigLoading(false);
-    });
-    return () => {
-      active = false;
-      controller.abort();
-    };
+        setSchedule(events);
+        setSelection((value) => ({
+          ...value,
+          round: String(events[0]?.round_number || ""),
+        }));
+        if (!events.length)
+          setCalendarError("No events are available for this season.");
+      })
+      .catch((error) => {
+        if (!controller.signal.aborted)
+          setCalendarError(
+            "The calendar could not be loaded. Try reconnecting."
+          );
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setCalendarLoading(false);
+      });
+    return () => controller.abort();
   }, [selection.year, retry]);
+  useEffect(() => {
+    const controller = new AbortController();
+    setDrivers([]);
+    setRosterError("");
+    if (!selection.round) {
+      setRosterLoading(false);
+      return () => controller.abort();
+    }
+    setRosterLoading(true);
+    axios
+      .get(
+        `${API_BASE_URL}/api/drivers/${selection.year}/${selection.round}/${selection.session}`,
+        { signal: controller.signal, timeout: 45000 }
+      )
+      .then((response) => {
+        if (controller.signal.aborted) return;
+        const grid = (response.data.drivers || []).map((driver) => ({
+          ...driver,
+          number: String(driver.number ?? driver.driver_number),
+        }));
+        const chosen =
+          grid.find(
+            (driver) => driver.abbreviation === preferredDriver.current
+          ) || grid[0];
+        setDrivers(grid);
+        setSelection((value) => ({ ...value, driver: chosen?.number || "" }));
+        if (!grid.length)
+          setRosterError(
+            "The driver roster has not been published for this session yet."
+          );
+      })
+      .catch((error) => {
+        if (!controller.signal.aborted)
+          setRosterError(
+            error.response?.data?.error ||
+              "The session roster could not be loaded. Please reconnect."
+          );
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setRosterLoading(false);
+      });
+    return () => controller.abort();
+  }, [selection.year, selection.round, selection.session, retry]);
   useEffect(() => () => request.current?.abort(), []);
   const change = (key, value) => {
     request.current?.abort();
     setLoading(false);
     setTelemetry(null);
     setError("");
-    setSelection((s) => ({ ...s, [key]: value }));
+    if (key === "driver")
+      preferredDriver.current =
+        drivers.find((driver) => driver.number === value)?.abbreviation || "";
+    if (["year", "round", "session"].includes(key)) {
+      setDrivers([]);
+      setRosterLoading(true);
+    }
+    setSelection((s) => ({
+      ...s,
+      [key]: value,
+      ...(["year", "round", "session"].includes(key) ? { driver: "" } : {}),
+      ...(key === "year" ? { round: "" } : {}),
+    }));
   };
   const selectedEvent = schedule.find(
     (e) => String(e.round_number) === selection.round
@@ -143,7 +196,13 @@ export default function Telemetry() {
     try {
       const response = await axios.get(
         `${API_BASE_URL}/api/telemetry/${selection.year}/${selection.round}/${selection.session}/${selection.driver}/${selection.lap}`,
-        { signal: controller.signal, timeout: 90000 }
+        {
+          signal: controller.signal,
+          timeout: 90000,
+          params: selectedDriver?.abbreviation
+            ? { driver_code: selectedDriver.abbreviation }
+            : undefined,
+        }
       );
       if (controller.signal.aborted) return;
       if (
@@ -160,7 +219,7 @@ export default function Telemetry() {
           (/not been loaded|Session\.load/i.test(
             err.response?.data?.error || ""
           )
-            ? "Telemetry is not available for this session. Try another session or driver."
+            ? "The timing feed could not be loaded. Please try again shortly."
             : err.response?.data?.error) ||
             (err.code === "ECONNABORTED"
               ? "The data service is taking longer than expected. Try again in a moment."
@@ -405,7 +464,9 @@ export default function Telemetry() {
             <div>
               <span className="lab-eyebrow">02 / THE LAP, REVEALED</span>
               <h2>
-                {selectedDriver?.full_name || `Driver ${telemetry.driver}`}
+                {telemetry.driver_name ||
+                  selectedDriver?.full_name ||
+                  `Driver ${telemetry.driver}`}
                 <span> / LAP {telemetry.lap_number}</span>
               </h2>
               <p>
@@ -595,7 +656,9 @@ export default function Telemetry() {
                 <span>
                   {channel === "engine"
                     ? "RPM · LEFT AXIS / GEAR · RIGHT AXIS"
-                    : "FASTF1 / SAMPLED CAR DATA"}
+                    : `${(
+                        telemetry.source || "FastF1"
+                      ).toUpperCase()} / SAMPLED CAR DATA`}
                 </span>
               </div>
             </div>
@@ -636,7 +699,9 @@ export default function Telemetry() {
                       <td>{number(point.rpm)}</td>
                       <td>{number(point.gear)}</td>
                       <td>{number(point.throttle)}</td>
-                      <td>{point.brake ? "On" : "Off"}</td>
+                      <td>
+                        {point.brake == null ? "—" : point.brake ? "On" : "Off"}
+                      </td>
                       <td>{point.drs ?? "—"}</td>
                     </tr>
                   ))}
@@ -645,8 +710,8 @@ export default function Telemetry() {
             </div>
           </details>
           <p className="lab-data-note">
-            Summary values use the returned samples. The timing feed is sampled
-            by the data service.
+            Source: {telemetry.source || "FastF1"}. Summary values use the
+            returned samples.
           </p>
         </section>
       )}

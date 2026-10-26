@@ -431,3 +431,14 @@ GET /race-control/2024/1/R
 ---
 
 **Happy F1 Data Analyzing! 🏁**
+
+### Historical telemetry source and identity
+
+For 2023 onward, `/api/telemetry/...` loads public historical OpenF1 samples.
+Optional `driver_code=VER` resolves the driver's number against that specific
+session roster. The response includes `source`, `driver_code`, `driver_name`,
+`source_session_key`, and UTC `lap_start`/`lap_end` alongside the existing fields.
+`/api/drivers/<year>/<round>/<session_type>` returns the session roster with
+both `number` and `driver_number` for compatibility. Missing sessions/laps return
+404; upstream failures return 502/503 with a public error `code`. Rate limits
+are not retried automatically. Pre-2023 telemetry retains the FastF1 source.

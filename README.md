@@ -295,3 +295,11 @@ visible. The Motion switch persists a static presentation preference locally;
 system reduced-motion settings remain respected. No Chrome GPU counter is read
 by the application; these changes reduce rendering work rather than promising a
 specific utilization percentage.
+
+Telemetry repair: historical sessions from 2023 onward now use OpenF1's public
+archive, with bounded lap-time queries, a bounded response cache, and explicit
+rate-limit handling. The telemetry selector loads the actual session roster;
+driver codes resolve number changes (for example, VER is 3 and NOR is 1 in the
+2026 Miami race). Responses include the actual source and driver identity.
+Pre-2023 telemetry continues to use FastF1. No Formula 1 account credentials are
+collected or embedded in the app. Backend tests: `python -m unittest discover -s tests -v`.

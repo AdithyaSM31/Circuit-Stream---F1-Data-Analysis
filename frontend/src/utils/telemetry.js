@@ -16,7 +16,7 @@ export function prepareTelemetry(points) {
     points: points.map((p, i) => ({
       ...p,
       axis: timed ? Number((times[i] - times[0]).toFixed(3)) : i + 1,
-      brake_input: p.brake ? 100 : 0,
+      brake_input: p.brake == null ? null : p.brake ? 100 : 0,
     })),
   };
 }

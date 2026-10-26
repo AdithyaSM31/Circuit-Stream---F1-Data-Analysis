@@ -12,6 +12,7 @@ from datetime import datetime, timezone
 import logging
 import os
 import requests
+from telemetry_service import historical_telemetry, session_drivers, TelemetryUnavailable
 # Create cache directory if it doesn't exist
 cache_dir = 'cache'
 if not os.path.exists(cache_dir):
@@ -34,6 +35,15 @@ CORS(app,
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+@app.errorhandler(TelemetryUnavailable)
+def handle_telemetry_unavailable(error):
+    logger.warning('Timing archive unavailable: %s (%s)', error, error.code)
+    response = jsonify({'error': str(error), 'code': error.code})
+    if error.status == 503:
+        response.headers['Retry-After'] = '60'
+    return response, error.status
 
 
 @app.route('/api/health', methods=['GET'])
@@ -238,18 +248,25 @@ def get_telemetry(year, round_number, session_type, driver_number, lap_number):
     Get telemetry data for a specific lap
     Returns: speed, rpm, gear, throttle, brake, DRS
     """
+    if year >= 2023:
+        return jsonify(historical_telemetry(year, round_number, session_type,
+                                           driver_number, lap_number,
+                                           driver_code=request.args.get('driver_code')))
     try:
         session = fastf1.get_session(year, round_number, session_type)
-        session.load()
+        session.load(laps=True, telemetry=True, weather=False, messages=False)
         
         if len(session.laps) == 0:
             return jsonify({'error': 'Telemetry data is not available for this session yet.'}), 404
             
         try:
-            lap = session.laps.pick_driver(driver_number).pick_lap(lap_number)
+            lap = session.laps.pick_drivers(driver_number).pick_laps(lap_number)
         except ValueError:
             return jsonify({'error': f'Driver {driver_number} or lap {lap_number} not found.'}), 404
             
+        if len(lap) == 0:
+            return jsonify({'error': 'This lap was not recorded for the selected driver.'}), 404
+
         telemetry = lap.get_car_data()
         
         if len(telemetry) == 0:
@@ -278,7 +295,8 @@ def get_telemetry(year, round_number, session_type, driver_number, lap_number):
             'driver': driver_number,
             'lap_number': lap_number,
             'telemetry': telemetry_data,
-            'data_points': len(telemetry_data)
+            'data_points': len(telemetry_data),
+            'source': 'FastF1'
         })
     except Exception as e:
         logger.error(f"Error fetching telemetry: {str(e)}")
@@ -400,70 +418,26 @@ def get_circuit_info(year, round_number):
 
 @app.route('/api/drivers/<int:year>/<int:round_number>/<session_type>', methods=['GET'])
 def get_drivers(year, round_number, session_type):
-    """Get list of drivers for a specific session"""
+    """Return the actual roster of the selected session, including seasonal number changes."""
+    if year >= 2023:
+        drivers = session_drivers(year, round_number, session_type)
+        return jsonify({'year': year, 'round': round_number, 'session_type': session_type,
+                        'drivers': drivers, 'source': 'OpenF1'})
     try:
-        try:
-            session = fastf1.get_session(year, round_number, session_type)
-            session.load()
-            
-            results = session.results
-            if len(results) == 0:
-                raise ValueError("Driver list is not available for this session yet.")
-            
-            drivers = []
-            for idx, driver in results.iterrows():
-                driver_data = {
-                    'driver_number': str(driver['DriverNumber']),
-                    'abbreviation': driver['Abbreviation'],
-                    'full_name': driver['FullName'],
-                    'team_name': driver['TeamName'],
-                    'team_color': driver['TeamColor'] if pd.notna(driver['TeamColor']) else None,
-                }
-                drivers.append(driver_data)
-            
-            return jsonify({
-                'year': year,
-                'round': round_number,
-                'session_type': session_type,
-                'drivers': drivers
-            })
-        except Exception as e:
-            if year == 2026:
-                # Fallback to hardcoded 2026 drivers if FastF1 fails
-                drivers_list = [
-                    {'abbreviation': 'GAS', 'full_name': 'Pierre Gasly', 'driver_number': '10', 'team_name': 'Alpine F1 Team', 'team_color': 'FF87BC'},
-                    {'abbreviation': 'COL', 'full_name': 'Franco Colapinto', 'driver_number': '43', 'team_name': 'Alpine F1 Team', 'team_color': 'FF87BC'},
-                    {'abbreviation': 'ALO', 'full_name': 'Fernando Alonso', 'driver_number': '14', 'team_name': 'Aston Martin', 'team_color': '229971'},
-                    {'abbreviation': 'STR', 'full_name': 'Lance Stroll', 'driver_number': '18', 'team_name': 'Aston Martin', 'team_color': '229971'},
-                    {'abbreviation': 'HUL', 'full_name': 'Nico Hulkenberg', 'driver_number': '27', 'team_name': 'Audi', 'team_color': 'F50537'},
-                    {'abbreviation': 'BOR', 'full_name': 'Gabriel Bortoleto', 'driver_number': '5', 'team_name': 'Audi', 'team_color': 'F50537'},
-                    {'abbreviation': 'PER', 'full_name': 'Sergio Perez', 'driver_number': '11', 'team_name': 'Cadillac', 'team_color': 'FFB800'},
-                    {'abbreviation': 'BOT', 'full_name': 'Valtteri Bottas', 'driver_number': '77', 'team_name': 'Cadillac', 'team_color': 'FFB800'},
-                    {'abbreviation': 'LEC', 'full_name': 'Charles Leclerc', 'driver_number': '16', 'team_name': 'Ferrari', 'team_color': 'E8002D'},
-                    {'abbreviation': 'HAM', 'full_name': 'Lewis Hamilton', 'driver_number': '44', 'team_name': 'Ferrari', 'team_color': 'E8002D'},
-                    {'abbreviation': 'OCO', 'full_name': 'Esteban Ocon', 'driver_number': '31', 'team_name': 'Haas F1 Team', 'team_color': 'B6BABD'},
-                    {'abbreviation': 'BEA', 'full_name': 'Oliver Bearman', 'driver_number': '87', 'team_name': 'Haas F1 Team', 'team_color': 'B6BABD'},
-                    {'abbreviation': 'NOR', 'full_name': 'Lando Norris', 'driver_number': '4', 'team_name': 'McLaren', 'team_color': 'FF8000'},
-                    {'abbreviation': 'PIA', 'full_name': 'Oscar Piastri', 'driver_number': '81', 'team_name': 'McLaren', 'team_color': 'FF8000'},
-                    {'abbreviation': 'RUS', 'full_name': 'George Russell', 'driver_number': '63', 'team_name': 'Mercedes', 'team_color': '27F4D2'},
-                    {'abbreviation': 'ANT', 'full_name': 'Andrea Kimi Antonelli', 'driver_number': '12', 'team_name': 'Mercedes', 'team_color': '27F4D2'},
-                    {'abbreviation': 'LAW', 'full_name': 'Liam Lawson', 'driver_number': '30', 'team_name': 'Racing Bulls', 'team_color': '6692FF'},
-                    {'abbreviation': 'LIN', 'full_name': 'Arvid Lindblad', 'driver_number': '40', 'team_name': 'Racing Bulls', 'team_color': '6692FF'},
-                    {'abbreviation': 'VER', 'full_name': 'Max Verstappen', 'driver_number': '1', 'team_name': 'Red Bull Racing', 'team_color': '3671C6'},
-                    {'abbreviation': 'HAD', 'full_name': 'Isack Hadjar', 'driver_number': '6', 'team_name': 'Red Bull Racing', 'team_color': '3671C6'},
-                    {'abbreviation': 'ALB', 'full_name': 'Alexander Albon', 'driver_number': '23', 'team_name': 'Williams', 'team_color': '64C4FF'},
-                    {'abbreviation': 'SAI', 'full_name': 'Carlos Sainz', 'driver_number': '55', 'team_name': 'Williams', 'team_color': '64C4FF'}
-                ]
-                return jsonify({
-                    'year': year,
-                    'round': round_number,
-                    'session_type': session_type,
-                    'drivers': drivers_list
-                })
-            raise e
-    except Exception as e:
-        logger.error(f"Error fetching drivers: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+        session = fastf1.get_session(year, round_number, session_type)
+        session.load(laps=False, telemetry=False, weather=False, messages=False)
+        drivers = []
+        for _, driver in session.results.iterrows():
+            number = str(driver['DriverNumber'])
+            drivers.append({'number': number, 'driver_number': number,
+                            'abbreviation': driver['Abbreviation'],
+                            'full_name': driver['FullName'], 'team_name': driver['TeamName'],
+                            'team_color': driver['TeamColor'] if pd.notna(driver['TeamColor']) else None})
+        return jsonify({'year': year, 'round': round_number, 'session_type': session_type,
+                        'drivers': drivers, 'source': 'FastF1'})
+    except Exception:
+        logger.exception('Could not load the session roster')
+        return jsonify({'error': 'The driver roster could not be loaded. Try again shortly.'}), 502
 
 
 @app.route('/api/current-event', methods=['GET'])
@@ -527,42 +501,14 @@ def get_all_drivers(year):
     Get all drivers for a specific year (for Teams page)
     Returns: driver names, abbreviations, numbers, team names, and team colors
     """
+    if year >= 2023:
+        drivers = session_drivers(year, 1, 'R')
+        return jsonify({'year': year, 'total_drivers': len(drivers),
+                        'drivers': drivers, 'source': 'OpenF1'})
     try:
-        if year == 2026:
-            # Hardcode 2026 drivers since FastF1 doesn't have the data yet
-            drivers_list = [
-                {'abbreviation': 'GAS', 'full_name': 'Pierre Gasly', 'number': '10', 'team_name': 'Alpine F1 Team', 'team_color': 'FF87BC'},
-                {'abbreviation': 'COL', 'full_name': 'Franco Colapinto', 'number': '43', 'team_name': 'Alpine F1 Team', 'team_color': 'FF87BC'},
-                {'abbreviation': 'ALO', 'full_name': 'Fernando Alonso', 'number': '14', 'team_name': 'Aston Martin', 'team_color': '229971'},
-                {'abbreviation': 'STR', 'full_name': 'Lance Stroll', 'number': '18', 'team_name': 'Aston Martin', 'team_color': '229971'},
-                {'abbreviation': 'HUL', 'full_name': 'Nico Hulkenberg', 'number': '27', 'team_name': 'Audi', 'team_color': 'F50537'},
-                {'abbreviation': 'BOR', 'full_name': 'Gabriel Bortoleto', 'number': '5', 'team_name': 'Audi', 'team_color': 'F50537'},
-                {'abbreviation': 'PER', 'full_name': 'Sergio Perez', 'number': '11', 'team_name': 'Cadillac', 'team_color': 'FFB800'},
-                {'abbreviation': 'BOT', 'full_name': 'Valtteri Bottas', 'number': '77', 'team_name': 'Cadillac', 'team_color': 'FFB800'},
-                {'abbreviation': 'LEC', 'full_name': 'Charles Leclerc', 'number': '16', 'team_name': 'Ferrari', 'team_color': 'E8002D'},
-                {'abbreviation': 'HAM', 'full_name': 'Lewis Hamilton', 'number': '44', 'team_name': 'Ferrari', 'team_color': 'E8002D'},
-                {'abbreviation': 'OCO', 'full_name': 'Esteban Ocon', 'number': '31', 'team_name': 'Haas F1 Team', 'team_color': 'B6BABD'},
-                {'abbreviation': 'BEA', 'full_name': 'Oliver Bearman', 'number': '87', 'team_name': 'Haas F1 Team', 'team_color': 'B6BABD'},
-                {'abbreviation': 'NOR', 'full_name': 'Lando Norris', 'number': '4', 'team_name': 'McLaren', 'team_color': 'FF8000'},
-                {'abbreviation': 'PIA', 'full_name': 'Oscar Piastri', 'number': '81', 'team_name': 'McLaren', 'team_color': 'FF8000'},
-                {'abbreviation': 'RUS', 'full_name': 'George Russell', 'number': '63', 'team_name': 'Mercedes', 'team_color': '27F4D2'},
-                {'abbreviation': 'ANT', 'full_name': 'Andrea Kimi Antonelli', 'number': '12', 'team_name': 'Mercedes', 'team_color': '27F4D2'},
-                {'abbreviation': 'LAW', 'full_name': 'Liam Lawson', 'number': '30', 'team_name': 'Racing Bulls', 'team_color': '6692FF'},
-                {'abbreviation': 'LIN', 'full_name': 'Arvid Lindblad', 'number': '40', 'team_name': 'Racing Bulls', 'team_color': '6692FF'},
-                {'abbreviation': 'VER', 'full_name': 'Max Verstappen', 'number': '1', 'team_name': 'Red Bull Racing', 'team_color': '3671C6'},
-                {'abbreviation': 'HAD', 'full_name': 'Isack Hadjar', 'number': '6', 'team_name': 'Red Bull Racing', 'team_color': '3671C6'},
-                {'abbreviation': 'ALB', 'full_name': 'Alexander Albon', 'number': '23', 'team_name': 'Williams', 'team_color': '64C4FF'},
-                {'abbreviation': 'SAI', 'full_name': 'Carlos Sainz', 'number': '55', 'team_name': 'Williams', 'team_color': '64C4FF'}
-            ]
-            return jsonify({
-                'year': year,
-                'total_drivers': len(drivers_list),
-                'drivers': drivers_list
-            })
-
         # Get the first race of the season to extract driver info
         session = fastf1.get_session(year, 1, 'R')
-        session.load()
+        session.load(laps=False, telemetry=False, weather=False, messages=False)
         
         drivers_list = []
         
@@ -572,7 +518,7 @@ def get_all_drivers(year):
             
             # Extract driver details
             driver_data = {
-                'abbreviation': driver_abbr,
+                'abbreviation': driver_info.get('Abbreviation', driver_abbr),
                 'full_name': driver_info['FullName'] if 'FullName' in driver_info else driver_abbr,
                 'number': str(driver_info['DriverNumber']) if 'DriverNumber' in driver_info else 'N/A',
                 'team_name': driver_info['TeamName'] if 'TeamName' in driver_info else 'Unknown',
