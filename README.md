@@ -4,9 +4,9 @@
   <p><strong>Every lap. Every layer.</strong></p>
   <p>An independent Formula 1 analysis workspace for the web and Android.</p>
   <p>
-    <a href="https://www.circuitstream.app/">Open web app</a> ·
+    <a href="https://circuit-stream-f1-data-analysis.vercel.app/">Open web app</a> ·
     <a href="https://github.com/AdithyaSM31/Circuit-Stream---F1-Data-Analysis/releases/tag/v2.0.0">Android v2.0.0</a> ·
-    <a href="https://www.circuitstream.app/brand/">Brand &amp; logo assets</a>
+    <a href="https://circuit-stream-f1-data-analysis.vercel.app/brand/">Brand &amp; logo assets</a>
   </p>
   <p>
     <img alt="Version 2.0.0" src="https://img.shields.io/badge/version-2.0.0-a9dbbd?style=flat-square&amp;labelColor=102219" />
